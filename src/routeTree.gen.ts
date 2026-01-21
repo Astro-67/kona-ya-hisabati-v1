@@ -9,94 +9,428 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TeacherRouteRouteImport } from './routes/teacher/route'
+import { Route as ParentRouteRouteImport } from './routes/parent/route'
+import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as DemoTableRouteImport } from './routes/demo/table'
-import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
-import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
+import { Route as TeacherIndexRouteImport } from './routes/teacher/index'
+import { Route as ParentIndexRouteImport } from './routes/parent/index'
+import { Route as ParentHomeActivitiesRouteImport } from './routes/parent/home-activities'
+import { Route as ParentGuidesRouteImport } from './routes/parent/guides'
+import { Route as TeacherStudentsIndexRouteImport } from './routes/teacher/students/index'
+import { Route as TeacherResourcesIndexRouteImport } from './routes/teacher/resources/index'
+import { Route as TeacherLessonPlansIndexRouteImport } from './routes/teacher/lesson-plans/index'
+import { Route as TeacherClassesIndexRouteImport } from './routes/teacher/classes/index'
+import { Route as TeacherAssignmentsIndexRouteImport } from './routes/teacher/assignments/index'
+import { Route as TeacherActivitiesIndexRouteImport } from './routes/teacher/activities/index'
+import { Route as TeacherStudentsCreateRouteImport } from './routes/teacher/students/create'
+import { Route as TeacherStudentsStudentIdRouteImport } from './routes/teacher/students/$studentId'
+import { Route as TeacherLessonPlansCreateRouteImport } from './routes/teacher/lesson-plans/create'
+import { Route as TeacherLessonPlansLessonIdRouteImport } from './routes/teacher/lesson-plans/$lessonId'
+import { Route as TeacherClassesCreateRouteImport } from './routes/teacher/classes/create'
+import { Route as TeacherAssignmentsCreateRouteImport } from './routes/teacher/assignments/create'
+import { Route as TeacherActivitiesActivityIdRouteImport } from './routes/teacher/activities/$activityId'
+import { Route as AuthTeacherRegisterRouteImport } from './routes/_auth/teacher/register'
+import { Route as AuthTeacherLoginRouteImport } from './routes/_auth/teacher/login'
+import { Route as AuthParentRegisterRouteImport } from './routes/_auth/parent/register'
+import { Route as AuthParentLoginRouteImport } from './routes/_auth/parent/login'
+import { Route as TeacherClassesClassIdIndexRouteImport } from './routes/teacher/classes/$classId/index'
+import { Route as TeacherClassesClassIdStudentsRouteImport } from './routes/teacher/classes/$classId/students'
+import { Route as TeacherClassesClassIdAssignmentsRouteImport } from './routes/teacher/classes/$classId/assignments'
+import { Route as ParentChildChildIdCategoriesRouteImport } from './routes/parent/child/$childId/categories'
+import { Route as ParentChildChildIdCategoryCategorySlugRouteImport } from './routes/parent/child/$childId/category/$categorySlug'
+import { Route as ParentChildChildIdActivityActivityIdRouteImport } from './routes/parent/child/$childId/activity/$activityId'
 
+const TeacherRouteRoute = TeacherRouteRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentRouteRoute = ParentRouteRouteImport.update({
+  id: '/parent',
+  path: '/parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
+const TeacherIndexRoute = TeacherIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherRouteRoute,
 } as any)
-const DemoTableRoute = DemoTableRouteImport.update({
-  id: '/demo/table',
-  path: '/demo/table',
-  getParentRoute: () => rootRouteImport,
+const ParentIndexRoute = ParentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ParentRouteRoute,
 } as any)
-const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
-  getParentRoute: () => rootRouteImport,
+const ParentHomeActivitiesRoute = ParentHomeActivitiesRouteImport.update({
+  id: '/home-activities',
+  path: '/home-activities',
+  getParentRoute: () => ParentRouteRoute,
 } as any)
-const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
-  id: '/demo/form/address',
-  path: '/demo/form/address',
-  getParentRoute: () => rootRouteImport,
+const ParentGuidesRoute = ParentGuidesRouteImport.update({
+  id: '/guides',
+  path: '/guides',
+  getParentRoute: () => ParentRouteRoute,
 } as any)
+const TeacherStudentsIndexRoute = TeacherStudentsIndexRouteImport.update({
+  id: '/students/',
+  path: '/students/',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherResourcesIndexRoute = TeacherResourcesIndexRouteImport.update({
+  id: '/resources/',
+  path: '/resources/',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherLessonPlansIndexRoute = TeacherLessonPlansIndexRouteImport.update({
+  id: '/lesson-plans/',
+  path: '/lesson-plans/',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherClassesIndexRoute = TeacherClassesIndexRouteImport.update({
+  id: '/classes/',
+  path: '/classes/',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherAssignmentsIndexRoute = TeacherAssignmentsIndexRouteImport.update({
+  id: '/assignments/',
+  path: '/assignments/',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherActivitiesIndexRoute = TeacherActivitiesIndexRouteImport.update({
+  id: '/activities/',
+  path: '/activities/',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherStudentsCreateRoute = TeacherStudentsCreateRouteImport.update({
+  id: '/students/create',
+  path: '/students/create',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherStudentsStudentIdRoute =
+  TeacherStudentsStudentIdRouteImport.update({
+    id: '/students/$studentId',
+    path: '/students/$studentId',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const TeacherLessonPlansCreateRoute =
+  TeacherLessonPlansCreateRouteImport.update({
+    id: '/lesson-plans/create',
+    path: '/lesson-plans/create',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const TeacherLessonPlansLessonIdRoute =
+  TeacherLessonPlansLessonIdRouteImport.update({
+    id: '/lesson-plans/$lessonId',
+    path: '/lesson-plans/$lessonId',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const TeacherClassesCreateRoute = TeacherClassesCreateRouteImport.update({
+  id: '/classes/create',
+  path: '/classes/create',
+  getParentRoute: () => TeacherRouteRoute,
+} as any)
+const TeacherAssignmentsCreateRoute =
+  TeacherAssignmentsCreateRouteImport.update({
+    id: '/assignments/create',
+    path: '/assignments/create',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const TeacherActivitiesActivityIdRoute =
+  TeacherActivitiesActivityIdRouteImport.update({
+    id: '/activities/$activityId',
+    path: '/activities/$activityId',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const AuthTeacherRegisterRoute = AuthTeacherRegisterRouteImport.update({
+  id: '/teacher/register',
+  path: '/teacher/register',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthTeacherLoginRoute = AuthTeacherLoginRouteImport.update({
+  id: '/teacher/login',
+  path: '/teacher/login',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthParentRegisterRoute = AuthParentRegisterRouteImport.update({
+  id: '/parent/register',
+  path: '/parent/register',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthParentLoginRoute = AuthParentLoginRouteImport.update({
+  id: '/parent/login',
+  path: '/parent/login',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const TeacherClassesClassIdIndexRoute =
+  TeacherClassesClassIdIndexRouteImport.update({
+    id: '/classes/$classId/',
+    path: '/classes/$classId/',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const TeacherClassesClassIdStudentsRoute =
+  TeacherClassesClassIdStudentsRouteImport.update({
+    id: '/classes/$classId/students',
+    path: '/classes/$classId/students',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const TeacherClassesClassIdAssignmentsRoute =
+  TeacherClassesClassIdAssignmentsRouteImport.update({
+    id: '/classes/$classId/assignments',
+    path: '/classes/$classId/assignments',
+    getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const ParentChildChildIdCategoriesRoute =
+  ParentChildChildIdCategoriesRouteImport.update({
+    id: '/child/$childId/categories',
+    path: '/child/$childId/categories',
+    getParentRoute: () => ParentRouteRoute,
+  } as any)
+const ParentChildChildIdCategoryCategorySlugRoute =
+  ParentChildChildIdCategoryCategorySlugRouteImport.update({
+    id: '/child/$childId/category/$categorySlug',
+    path: '/child/$childId/category/$categorySlug',
+    getParentRoute: () => ParentRouteRoute,
+  } as any)
+const ParentChildChildIdActivityActivityIdRoute =
+  ParentChildChildIdActivityActivityIdRouteImport.update({
+    id: '/child/$childId/activity/$activityId',
+    path: '/child/$childId/activity/$activityId',
+    getParentRoute: () => ParentRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/parent': typeof ParentRouteRouteWithChildren
+  '/teacher': typeof TeacherRouteRouteWithChildren
+  '/parent/guides': typeof ParentGuidesRoute
+  '/parent/home-activities': typeof ParentHomeActivitiesRoute
+  '/parent/': typeof ParentIndexRoute
+  '/teacher/': typeof TeacherIndexRoute
+  '/parent/login': typeof AuthParentLoginRoute
+  '/parent/register': typeof AuthParentRegisterRoute
+  '/teacher/login': typeof AuthTeacherLoginRoute
+  '/teacher/register': typeof AuthTeacherRegisterRoute
+  '/teacher/activities/$activityId': typeof TeacherActivitiesActivityIdRoute
+  '/teacher/assignments/create': typeof TeacherAssignmentsCreateRoute
+  '/teacher/classes/create': typeof TeacherClassesCreateRoute
+  '/teacher/lesson-plans/$lessonId': typeof TeacherLessonPlansLessonIdRoute
+  '/teacher/lesson-plans/create': typeof TeacherLessonPlansCreateRoute
+  '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
+  '/teacher/students/create': typeof TeacherStudentsCreateRoute
+  '/teacher/activities/': typeof TeacherActivitiesIndexRoute
+  '/teacher/assignments/': typeof TeacherAssignmentsIndexRoute
+  '/teacher/classes/': typeof TeacherClassesIndexRoute
+  '/teacher/lesson-plans/': typeof TeacherLessonPlansIndexRoute
+  '/teacher/resources/': typeof TeacherResourcesIndexRoute
+  '/teacher/students/': typeof TeacherStudentsIndexRoute
+  '/parent/child/$childId/categories': typeof ParentChildChildIdCategoriesRoute
+  '/teacher/classes/$classId/assignments': typeof TeacherClassesClassIdAssignmentsRoute
+  '/teacher/classes/$classId/students': typeof TeacherClassesClassIdStudentsRoute
+  '/teacher/classes/$classId/': typeof TeacherClassesClassIdIndexRoute
+  '/parent/child/$childId/activity/$activityId': typeof ParentChildChildIdActivityActivityIdRoute
+  '/parent/child/$childId/category/$categorySlug': typeof ParentChildChildIdCategoryCategorySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/parent/guides': typeof ParentGuidesRoute
+  '/parent/home-activities': typeof ParentHomeActivitiesRoute
+  '/parent': typeof ParentIndexRoute
+  '/teacher': typeof TeacherIndexRoute
+  '/parent/login': typeof AuthParentLoginRoute
+  '/parent/register': typeof AuthParentRegisterRoute
+  '/teacher/login': typeof AuthTeacherLoginRoute
+  '/teacher/register': typeof AuthTeacherRegisterRoute
+  '/teacher/activities/$activityId': typeof TeacherActivitiesActivityIdRoute
+  '/teacher/assignments/create': typeof TeacherAssignmentsCreateRoute
+  '/teacher/classes/create': typeof TeacherClassesCreateRoute
+  '/teacher/lesson-plans/$lessonId': typeof TeacherLessonPlansLessonIdRoute
+  '/teacher/lesson-plans/create': typeof TeacherLessonPlansCreateRoute
+  '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
+  '/teacher/students/create': typeof TeacherStudentsCreateRoute
+  '/teacher/activities': typeof TeacherActivitiesIndexRoute
+  '/teacher/assignments': typeof TeacherAssignmentsIndexRoute
+  '/teacher/classes': typeof TeacherClassesIndexRoute
+  '/teacher/lesson-plans': typeof TeacherLessonPlansIndexRoute
+  '/teacher/resources': typeof TeacherResourcesIndexRoute
+  '/teacher/students': typeof TeacherStudentsIndexRoute
+  '/parent/child/$childId/categories': typeof ParentChildChildIdCategoriesRoute
+  '/teacher/classes/$classId/assignments': typeof TeacherClassesClassIdAssignmentsRoute
+  '/teacher/classes/$classId/students': typeof TeacherClassesClassIdStudentsRoute
+  '/teacher/classes/$classId': typeof TeacherClassesClassIdIndexRoute
+  '/parent/child/$childId/activity/$activityId': typeof ParentChildChildIdActivityActivityIdRoute
+  '/parent/child/$childId/category/$categorySlug': typeof ParentChildChildIdCategoryCategorySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/_auth': typeof AuthRouteRouteWithChildren
+  '/parent': typeof ParentRouteRouteWithChildren
+  '/teacher': typeof TeacherRouteRouteWithChildren
+  '/parent/guides': typeof ParentGuidesRoute
+  '/parent/home-activities': typeof ParentHomeActivitiesRoute
+  '/parent/': typeof ParentIndexRoute
+  '/teacher/': typeof TeacherIndexRoute
+  '/_auth/parent/login': typeof AuthParentLoginRoute
+  '/_auth/parent/register': typeof AuthParentRegisterRoute
+  '/_auth/teacher/login': typeof AuthTeacherLoginRoute
+  '/_auth/teacher/register': typeof AuthTeacherRegisterRoute
+  '/teacher/activities/$activityId': typeof TeacherActivitiesActivityIdRoute
+  '/teacher/assignments/create': typeof TeacherAssignmentsCreateRoute
+  '/teacher/classes/create': typeof TeacherClassesCreateRoute
+  '/teacher/lesson-plans/$lessonId': typeof TeacherLessonPlansLessonIdRoute
+  '/teacher/lesson-plans/create': typeof TeacherLessonPlansCreateRoute
+  '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
+  '/teacher/students/create': typeof TeacherStudentsCreateRoute
+  '/teacher/activities/': typeof TeacherActivitiesIndexRoute
+  '/teacher/assignments/': typeof TeacherAssignmentsIndexRoute
+  '/teacher/classes/': typeof TeacherClassesIndexRoute
+  '/teacher/lesson-plans/': typeof TeacherLessonPlansIndexRoute
+  '/teacher/resources/': typeof TeacherResourcesIndexRoute
+  '/teacher/students/': typeof TeacherStudentsIndexRoute
+  '/parent/child/$childId/categories': typeof ParentChildChildIdCategoriesRoute
+  '/teacher/classes/$classId/assignments': typeof TeacherClassesClassIdAssignmentsRoute
+  '/teacher/classes/$classId/students': typeof TeacherClassesClassIdStudentsRoute
+  '/teacher/classes/$classId/': typeof TeacherClassesClassIdIndexRoute
+  '/parent/child/$childId/activity/$activityId': typeof ParentChildChildIdActivityActivityIdRoute
+  '/parent/child/$childId/category/$categorySlug': typeof ParentChildChildIdCategoryCategorySlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/parent'
+    | '/teacher'
+    | '/parent/guides'
+    | '/parent/home-activities'
+    | '/parent/'
+    | '/teacher/'
+    | '/parent/login'
+    | '/parent/register'
+    | '/teacher/login'
+    | '/teacher/register'
+    | '/teacher/activities/$activityId'
+    | '/teacher/assignments/create'
+    | '/teacher/classes/create'
+    | '/teacher/lesson-plans/$lessonId'
+    | '/teacher/lesson-plans/create'
+    | '/teacher/students/$studentId'
+    | '/teacher/students/create'
+    | '/teacher/activities/'
+    | '/teacher/assignments/'
+    | '/teacher/classes/'
+    | '/teacher/lesson-plans/'
+    | '/teacher/resources/'
+    | '/teacher/students/'
+    | '/parent/child/$childId/categories'
+    | '/teacher/classes/$classId/assignments'
+    | '/teacher/classes/$classId/students'
+    | '/teacher/classes/$classId/'
+    | '/parent/child/$childId/activity/$activityId'
+    | '/parent/child/$childId/category/$categorySlug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/parent/guides'
+    | '/parent/home-activities'
+    | '/parent'
+    | '/teacher'
+    | '/parent/login'
+    | '/parent/register'
+    | '/teacher/login'
+    | '/teacher/register'
+    | '/teacher/activities/$activityId'
+    | '/teacher/assignments/create'
+    | '/teacher/classes/create'
+    | '/teacher/lesson-plans/$lessonId'
+    | '/teacher/lesson-plans/create'
+    | '/teacher/students/$studentId'
+    | '/teacher/students/create'
+    | '/teacher/activities'
+    | '/teacher/assignments'
+    | '/teacher/classes'
+    | '/teacher/lesson-plans'
+    | '/teacher/resources'
+    | '/teacher/students'
+    | '/parent/child/$childId/categories'
+    | '/teacher/classes/$classId/assignments'
+    | '/teacher/classes/$classId/students'
+    | '/teacher/classes/$classId'
+    | '/parent/child/$childId/activity/$activityId'
+    | '/parent/child/$childId/category/$categorySlug'
   id:
     | '__root__'
     | '/'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/_auth'
+    | '/parent'
+    | '/teacher'
+    | '/parent/guides'
+    | '/parent/home-activities'
+    | '/parent/'
+    | '/teacher/'
+    | '/_auth/parent/login'
+    | '/_auth/parent/register'
+    | '/_auth/teacher/login'
+    | '/_auth/teacher/register'
+    | '/teacher/activities/$activityId'
+    | '/teacher/assignments/create'
+    | '/teacher/classes/create'
+    | '/teacher/lesson-plans/$lessonId'
+    | '/teacher/lesson-plans/create'
+    | '/teacher/students/$studentId'
+    | '/teacher/students/create'
+    | '/teacher/activities/'
+    | '/teacher/assignments/'
+    | '/teacher/classes/'
+    | '/teacher/lesson-plans/'
+    | '/teacher/resources/'
+    | '/teacher/students/'
+    | '/parent/child/$childId/categories'
+    | '/teacher/classes/$classId/assignments'
+    | '/teacher/classes/$classId/students'
+    | '/teacher/classes/$classId/'
+    | '/parent/child/$childId/activity/$activityId'
+    | '/parent/child/$childId/category/$categorySlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DemoTableRoute: typeof DemoTableRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  DemoFormAddressRoute: typeof DemoFormAddressRoute
-  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  ParentRouteRoute: typeof ParentRouteRouteWithChildren
+  TeacherRouteRoute: typeof TeacherRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/teacher': {
+      id: '/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof TeacherRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent': {
+      id: '/parent'
+      path: '/parent'
+      fullPath: '/parent'
+      preLoaderRoute: typeof ParentRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,43 +438,289 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
+    '/teacher/': {
+      id: '/teacher/'
+      path: '/'
+      fullPath: '/teacher/'
+      preLoaderRoute: typeof TeacherIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
     }
-    '/demo/table': {
-      id: '/demo/table'
-      path: '/demo/table'
-      fullPath: '/demo/table'
-      preLoaderRoute: typeof DemoTableRouteImport
-      parentRoute: typeof rootRouteImport
+    '/parent/': {
+      id: '/parent/'
+      path: '/'
+      fullPath: '/parent/'
+      preLoaderRoute: typeof ParentIndexRouteImport
+      parentRoute: typeof ParentRouteRoute
     }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleRouteImport
-      parentRoute: typeof rootRouteImport
+    '/parent/home-activities': {
+      id: '/parent/home-activities'
+      path: '/home-activities'
+      fullPath: '/parent/home-activities'
+      preLoaderRoute: typeof ParentHomeActivitiesRouteImport
+      parentRoute: typeof ParentRouteRoute
     }
-    '/demo/form/address': {
-      id: '/demo/form/address'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressRouteImport
-      parentRoute: typeof rootRouteImport
+    '/parent/guides': {
+      id: '/parent/guides'
+      path: '/guides'
+      fullPath: '/parent/guides'
+      preLoaderRoute: typeof ParentGuidesRouteImport
+      parentRoute: typeof ParentRouteRoute
+    }
+    '/teacher/students/': {
+      id: '/teacher/students/'
+      path: '/students'
+      fullPath: '/teacher/students/'
+      preLoaderRoute: typeof TeacherStudentsIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/resources/': {
+      id: '/teacher/resources/'
+      path: '/resources'
+      fullPath: '/teacher/resources/'
+      preLoaderRoute: typeof TeacherResourcesIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/lesson-plans/': {
+      id: '/teacher/lesson-plans/'
+      path: '/lesson-plans'
+      fullPath: '/teacher/lesson-plans/'
+      preLoaderRoute: typeof TeacherLessonPlansIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/classes/': {
+      id: '/teacher/classes/'
+      path: '/classes'
+      fullPath: '/teacher/classes/'
+      preLoaderRoute: typeof TeacherClassesIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/assignments/': {
+      id: '/teacher/assignments/'
+      path: '/assignments'
+      fullPath: '/teacher/assignments/'
+      preLoaderRoute: typeof TeacherAssignmentsIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/activities/': {
+      id: '/teacher/activities/'
+      path: '/activities'
+      fullPath: '/teacher/activities/'
+      preLoaderRoute: typeof TeacherActivitiesIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/students/create': {
+      id: '/teacher/students/create'
+      path: '/students/create'
+      fullPath: '/teacher/students/create'
+      preLoaderRoute: typeof TeacherStudentsCreateRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/students/$studentId': {
+      id: '/teacher/students/$studentId'
+      path: '/students/$studentId'
+      fullPath: '/teacher/students/$studentId'
+      preLoaderRoute: typeof TeacherStudentsStudentIdRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/lesson-plans/create': {
+      id: '/teacher/lesson-plans/create'
+      path: '/lesson-plans/create'
+      fullPath: '/teacher/lesson-plans/create'
+      preLoaderRoute: typeof TeacherLessonPlansCreateRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/lesson-plans/$lessonId': {
+      id: '/teacher/lesson-plans/$lessonId'
+      path: '/lesson-plans/$lessonId'
+      fullPath: '/teacher/lesson-plans/$lessonId'
+      preLoaderRoute: typeof TeacherLessonPlansLessonIdRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/classes/create': {
+      id: '/teacher/classes/create'
+      path: '/classes/create'
+      fullPath: '/teacher/classes/create'
+      preLoaderRoute: typeof TeacherClassesCreateRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/assignments/create': {
+      id: '/teacher/assignments/create'
+      path: '/assignments/create'
+      fullPath: '/teacher/assignments/create'
+      preLoaderRoute: typeof TeacherAssignmentsCreateRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/activities/$activityId': {
+      id: '/teacher/activities/$activityId'
+      path: '/activities/$activityId'
+      fullPath: '/teacher/activities/$activityId'
+      preLoaderRoute: typeof TeacherActivitiesActivityIdRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/_auth/teacher/register': {
+      id: '/_auth/teacher/register'
+      path: '/teacher/register'
+      fullPath: '/teacher/register'
+      preLoaderRoute: typeof AuthTeacherRegisterRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/teacher/login': {
+      id: '/_auth/teacher/login'
+      path: '/teacher/login'
+      fullPath: '/teacher/login'
+      preLoaderRoute: typeof AuthTeacherLoginRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/parent/register': {
+      id: '/_auth/parent/register'
+      path: '/parent/register'
+      fullPath: '/parent/register'
+      preLoaderRoute: typeof AuthParentRegisterRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/parent/login': {
+      id: '/_auth/parent/login'
+      path: '/parent/login'
+      fullPath: '/parent/login'
+      preLoaderRoute: typeof AuthParentLoginRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/teacher/classes/$classId/': {
+      id: '/teacher/classes/$classId/'
+      path: '/classes/$classId'
+      fullPath: '/teacher/classes/$classId/'
+      preLoaderRoute: typeof TeacherClassesClassIdIndexRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/classes/$classId/students': {
+      id: '/teacher/classes/$classId/students'
+      path: '/classes/$classId/students'
+      fullPath: '/teacher/classes/$classId/students'
+      preLoaderRoute: typeof TeacherClassesClassIdStudentsRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/teacher/classes/$classId/assignments': {
+      id: '/teacher/classes/$classId/assignments'
+      path: '/classes/$classId/assignments'
+      fullPath: '/teacher/classes/$classId/assignments'
+      preLoaderRoute: typeof TeacherClassesClassIdAssignmentsRouteImport
+      parentRoute: typeof TeacherRouteRoute
+    }
+    '/parent/child/$childId/categories': {
+      id: '/parent/child/$childId/categories'
+      path: '/child/$childId/categories'
+      fullPath: '/parent/child/$childId/categories'
+      preLoaderRoute: typeof ParentChildChildIdCategoriesRouteImport
+      parentRoute: typeof ParentRouteRoute
+    }
+    '/parent/child/$childId/category/$categorySlug': {
+      id: '/parent/child/$childId/category/$categorySlug'
+      path: '/child/$childId/category/$categorySlug'
+      fullPath: '/parent/child/$childId/category/$categorySlug'
+      preLoaderRoute: typeof ParentChildChildIdCategoryCategorySlugRouteImport
+      parentRoute: typeof ParentRouteRoute
+    }
+    '/parent/child/$childId/activity/$activityId': {
+      id: '/parent/child/$childId/activity/$activityId'
+      path: '/child/$childId/activity/$activityId'
+      fullPath: '/parent/child/$childId/activity/$activityId'
+      preLoaderRoute: typeof ParentChildChildIdActivityActivityIdRouteImport
+      parentRoute: typeof ParentRouteRoute
     }
   }
 }
 
+interface AuthRouteRouteChildren {
+  AuthParentLoginRoute: typeof AuthParentLoginRoute
+  AuthParentRegisterRoute: typeof AuthParentRegisterRoute
+  AuthTeacherLoginRoute: typeof AuthTeacherLoginRoute
+  AuthTeacherRegisterRoute: typeof AuthTeacherRegisterRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthParentLoginRoute: AuthParentLoginRoute,
+  AuthParentRegisterRoute: AuthParentRegisterRoute,
+  AuthTeacherLoginRoute: AuthTeacherLoginRoute,
+  AuthTeacherRegisterRoute: AuthTeacherRegisterRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
+
+interface ParentRouteRouteChildren {
+  ParentGuidesRoute: typeof ParentGuidesRoute
+  ParentHomeActivitiesRoute: typeof ParentHomeActivitiesRoute
+  ParentIndexRoute: typeof ParentIndexRoute
+  ParentChildChildIdCategoriesRoute: typeof ParentChildChildIdCategoriesRoute
+  ParentChildChildIdActivityActivityIdRoute: typeof ParentChildChildIdActivityActivityIdRoute
+  ParentChildChildIdCategoryCategorySlugRoute: typeof ParentChildChildIdCategoryCategorySlugRoute
+}
+
+const ParentRouteRouteChildren: ParentRouteRouteChildren = {
+  ParentGuidesRoute: ParentGuidesRoute,
+  ParentHomeActivitiesRoute: ParentHomeActivitiesRoute,
+  ParentIndexRoute: ParentIndexRoute,
+  ParentChildChildIdCategoriesRoute: ParentChildChildIdCategoriesRoute,
+  ParentChildChildIdActivityActivityIdRoute:
+    ParentChildChildIdActivityActivityIdRoute,
+  ParentChildChildIdCategoryCategorySlugRoute:
+    ParentChildChildIdCategoryCategorySlugRoute,
+}
+
+const ParentRouteRouteWithChildren = ParentRouteRoute._addFileChildren(
+  ParentRouteRouteChildren,
+)
+
+interface TeacherRouteRouteChildren {
+  TeacherIndexRoute: typeof TeacherIndexRoute
+  TeacherActivitiesActivityIdRoute: typeof TeacherActivitiesActivityIdRoute
+  TeacherAssignmentsCreateRoute: typeof TeacherAssignmentsCreateRoute
+  TeacherClassesCreateRoute: typeof TeacherClassesCreateRoute
+  TeacherLessonPlansLessonIdRoute: typeof TeacherLessonPlansLessonIdRoute
+  TeacherLessonPlansCreateRoute: typeof TeacherLessonPlansCreateRoute
+  TeacherStudentsStudentIdRoute: typeof TeacherStudentsStudentIdRoute
+  TeacherStudentsCreateRoute: typeof TeacherStudentsCreateRoute
+  TeacherActivitiesIndexRoute: typeof TeacherActivitiesIndexRoute
+  TeacherAssignmentsIndexRoute: typeof TeacherAssignmentsIndexRoute
+  TeacherClassesIndexRoute: typeof TeacherClassesIndexRoute
+  TeacherLessonPlansIndexRoute: typeof TeacherLessonPlansIndexRoute
+  TeacherResourcesIndexRoute: typeof TeacherResourcesIndexRoute
+  TeacherStudentsIndexRoute: typeof TeacherStudentsIndexRoute
+  TeacherClassesClassIdAssignmentsRoute: typeof TeacherClassesClassIdAssignmentsRoute
+  TeacherClassesClassIdStudentsRoute: typeof TeacherClassesClassIdStudentsRoute
+  TeacherClassesClassIdIndexRoute: typeof TeacherClassesClassIdIndexRoute
+}
+
+const TeacherRouteRouteChildren: TeacherRouteRouteChildren = {
+  TeacherIndexRoute: TeacherIndexRoute,
+  TeacherActivitiesActivityIdRoute: TeacherActivitiesActivityIdRoute,
+  TeacherAssignmentsCreateRoute: TeacherAssignmentsCreateRoute,
+  TeacherClassesCreateRoute: TeacherClassesCreateRoute,
+  TeacherLessonPlansLessonIdRoute: TeacherLessonPlansLessonIdRoute,
+  TeacherLessonPlansCreateRoute: TeacherLessonPlansCreateRoute,
+  TeacherStudentsStudentIdRoute: TeacherStudentsStudentIdRoute,
+  TeacherStudentsCreateRoute: TeacherStudentsCreateRoute,
+  TeacherActivitiesIndexRoute: TeacherActivitiesIndexRoute,
+  TeacherAssignmentsIndexRoute: TeacherAssignmentsIndexRoute,
+  TeacherClassesIndexRoute: TeacherClassesIndexRoute,
+  TeacherLessonPlansIndexRoute: TeacherLessonPlansIndexRoute,
+  TeacherResourcesIndexRoute: TeacherResourcesIndexRoute,
+  TeacherStudentsIndexRoute: TeacherStudentsIndexRoute,
+  TeacherClassesClassIdAssignmentsRoute: TeacherClassesClassIdAssignmentsRoute,
+  TeacherClassesClassIdStudentsRoute: TeacherClassesClassIdStudentsRoute,
+  TeacherClassesClassIdIndexRoute: TeacherClassesClassIdIndexRoute,
+}
+
+const TeacherRouteRouteWithChildren = TeacherRouteRoute._addFileChildren(
+  TeacherRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DemoTableRoute: DemoTableRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  DemoFormAddressRoute: DemoFormAddressRoute,
-  DemoFormSimpleRoute: DemoFormSimpleRoute,
+  AuthRouteRoute: AuthRouteRouteWithChildren,
+  ParentRouteRoute: ParentRouteRouteWithChildren,
+  TeacherRouteRoute: TeacherRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
