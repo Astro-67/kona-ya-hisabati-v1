@@ -48,6 +48,7 @@ export const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getAuthToken();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (token && config.headers) {
       // Safer way to set headers in Axios v1+
       config.headers.set('Authorization', `Bearer ${token}`);
