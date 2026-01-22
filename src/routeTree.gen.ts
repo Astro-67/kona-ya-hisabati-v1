@@ -9,6 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as TeacherRouteRouteImport } from './routes/teacher/route'
 import { Route as ParentRouteRouteImport } from './routes/parent/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
@@ -41,6 +44,21 @@ import { Route as ParentChildChildIdCategoriesRouteImport } from './routes/paren
 import { Route as ParentChildChildIdCategoryCategorySlugRouteImport } from './routes/parent/child/$childId/category/$categorySlug'
 import { Route as ParentChildChildIdActivityActivityIdRouteImport } from './routes/parent/child/$childId/activity/$activityId'
 
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeacherRouteRoute = TeacherRouteRouteImport.update({
   id: '/teacher',
   path: '/teacher',
@@ -211,6 +229,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/parent': typeof ParentRouteRouteWithChildren
   '/teacher': typeof TeacherRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
   '/parent/guides': typeof ParentGuidesRoute
   '/parent/home-activities': typeof ParentHomeActivitiesRoute
   '/parent/': typeof ParentIndexRoute
@@ -241,6 +262,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
   '/parent/guides': typeof ParentGuidesRoute
   '/parent/home-activities': typeof ParentHomeActivitiesRoute
   '/parent': typeof ParentIndexRoute
@@ -275,6 +299,9 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/parent': typeof ParentRouteRouteWithChildren
   '/teacher': typeof TeacherRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
   '/parent/guides': typeof ParentGuidesRoute
   '/parent/home-activities': typeof ParentHomeActivitiesRoute
   '/parent/': typeof ParentIndexRoute
@@ -309,6 +336,9 @@ export interface FileRouteTypes {
     | '/'
     | '/parent'
     | '/teacher'
+    | '/about'
+    | '/contact'
+    | '/privacy'
     | '/parent/guides'
     | '/parent/home-activities'
     | '/parent/'
@@ -339,6 +369,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/contact'
+    | '/privacy'
     | '/parent/guides'
     | '/parent/home-activities'
     | '/parent'
@@ -372,6 +405,9 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/parent'
     | '/teacher'
+    | '/about'
+    | '/contact'
+    | '/privacy'
     | '/parent/guides'
     | '/parent/home-activities'
     | '/parent/'
@@ -406,10 +442,34 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ParentRouteRoute: typeof ParentRouteRouteWithChildren
   TeacherRouteRoute: typeof TeacherRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
+  PrivacyRoute: typeof PrivacyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teacher': {
       id: '/teacher'
       path: '/teacher'
@@ -721,6 +781,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ParentRouteRoute: ParentRouteRouteWithChildren,
   TeacherRouteRoute: TeacherRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
+  PrivacyRoute: PrivacyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
