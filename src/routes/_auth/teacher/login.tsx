@@ -40,10 +40,14 @@ export default function TeacherLogin() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
-      const response = await apiClient.post('/users/login/', {
-        identifier: data.identifier,
-        password: data.password,
-      })
+      const payload: Record<string, string> = { password: data.password }
+      if (emailRegex.test(data.identifier)) {
+        payload.email = data.identifier
+      } else {
+        payload.username = data.identifier
+      }
+
+      const response = await apiClient.post('/users/login/', payload)
       return response.data
     },
     onSuccess: (data) => {
@@ -52,7 +56,8 @@ export default function TeacherLogin() {
       navigate({ to: '/teacher' })
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Login failed')
+      console.error('Login error:', error)
+      toast.error(error?.message || JSON.stringify(error?.data) || 'Login failed')
     },
   })
 

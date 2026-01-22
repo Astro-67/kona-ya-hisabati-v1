@@ -40,11 +40,15 @@ export default function ParentLogin() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
-      // Send identifier (email or username) and password — backend should accept identifier
-      const response = await apiClient.post('/users/login/', {
-        identifier: data.identifier,
-        password: data.password,
-      })
+      // Map identifier to either email or username depending on format
+      const payload: Record<string, string> = { password: data.password }
+      if (emailRegex.test(data.identifier)) {
+        payload.email = data.identifier
+      } else {
+        payload.username = data.identifier
+      }
+
+      const response = await apiClient.post('/users/login/', payload)
       return response.data
     },
     onSuccess: (data) => {
@@ -53,7 +57,9 @@ export default function ParentLogin() {
       navigate({ to: '/parent' })
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Login failed')
+      // apiClient maps errors to { message, status, data }
+      console.error('Login error:', error)
+      toast.error(error?.message || JSON.stringify(error?.data) || 'Login failed')
     },
   })
 
