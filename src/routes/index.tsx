@@ -78,7 +78,11 @@ export default function App() {
       {/* Hero Section */}
       <div className="container mx-auto px-4 pt-20 pb-12 sm:pt-32 sm:pb-16">
         <div className="text-center max-w-4xl mx-auto space-y-6">
-          <img src="/logo.svg" alt="Kona Ya Hisabati" className="mx-auto h-20" />
+          <div className="mx-auto w-36 h-36 rounded-full flex items-center justify-center shadow-md border border-[var(--color-primary)]">
+            <div className="bg-white rounded-full flex items-center justify-center w-[86%] h-[86%]">
+              <img src="/kona.png" alt="Kona Ya Hisabati" className="h-20 w-auto" />
+            </div>
+          </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold" style={{ color: 'var(--color-primary)' }}>
             {language === 'en' ? 'Welcome to' : 'Karibu'}
