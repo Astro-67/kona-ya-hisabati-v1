@@ -16,7 +16,8 @@ export const Route = createFileRoute('/parent/child/$childId/categories')({
 });
 
 function CategoriesPage() {
-  const { childId } = Route.useParams();
+  let { childId } = Route.useParams();
+  childId = String(childId);
   const [, setChildName] = useState<string | null>(null);
 
   // Fetch categories
@@ -61,9 +62,11 @@ function CategoriesPage() {
       </Breadcrumb>
       <h1 className="text-3xl font-bold mb-8">Choose a Topic</h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {(categories?.results ?? []).slice(0, 6).map((category: any, idx: number) => (
-          <CategoryCard key={category.id} category={category} childId={childId} index={idx} />
-        ))}
+        {(categories?.results ?? []).slice(0, 6).map((category: any, idx: number) => {
+          // Defensive: only pass valid childId
+          if (!childId || childId === '' || childId === 'undefined') return null;
+          return <CategoryCard key={category.id} category={category} childId={childId} index={idx} />;
+        })}
       </div>
     </div>
   );

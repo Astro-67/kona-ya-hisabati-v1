@@ -26,6 +26,7 @@ function CategoryActivitiesPage() {
       return res.data?.results ?? [];
     },
   });
+  console.log('Activities data:', activities);
 
   const filtered = difficulty
     ? activities?.filter((a: any) => a.difficulty === difficulty)
