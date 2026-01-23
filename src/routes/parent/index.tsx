@@ -17,30 +17,23 @@ function ParentDashboard() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const navigate = useNavigate()
 
-  function formatGrade(raw?: string | null) {
-    if (!raw) return null
-    // turn 'pre_primary_1' -> 'Pre Primary 1'
-    return raw
-      .replace(/_/g, ' ')
-      .split(' ')
-      .map((w) => (w.length ? w[0].toUpperCase() + w.slice(1) : w))
-      .join(' ')
-  }
+
 
   const { data: children, isLoading } = useQuery({
     queryKey: ['children'],
     queryFn: async () => {
-      // Backend provides students at /users/students/ — use results array
-      const response = await apiClient.get('/users/students/')
-      const results = response.data?.results ?? []
-
-      return results.map((s: any) => ({
-        id: s.id,
-        name: `${s.user?.first_name ?? ''} ${s.user?.last_name ?? ''}`.trim() || s.user?.username || `Student ${s.id}`,
-        grade: formatGrade(s.grade_level),
-        // Use total_points as a simple progress indicator (clamped to 0-100)
-        progress: Math.max(0, Math.min(100, Number(s.total_points ?? 0))),
-      }))
+      // Use correct parent children endpoint
+      const response = await apiClient.get('/parent/children/');
+      const results = Array.isArray(response.data) ? response.data : response.data?.results ?? [];
+      return results.map((s: any) => {
+        const id = String(s.child_id);
+        return {
+          id,
+          name: s.child_name || s.username || `Student ${id}`,
+          grade: null, // No grade in this API
+          progress: Math.max(0, Math.min(100, Number(s.total_points ?? 0))),
+        };
+      });
     },
   })
 
@@ -73,7 +66,11 @@ function ParentDashboard() {
             <ChildProfileCard
               key={child.id}
               child={child}
-              onClick={() => navigate({ to: `/parent/child/${child.id}/categories` })}
+              onClick={() => {
+                if (child.id && child.id !== 'undefined') {
+                  navigate({ to: `/parent/child/${child.id}/categories` });
+                }
+              }}
             />
           ))}
         </div>

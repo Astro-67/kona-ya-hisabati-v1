@@ -20,15 +20,21 @@ const cardColors = [
   'bg-gradient-to-br from-orange-200 via-orange-100 to-orange-50',
 ];
 
-export function CategoryCard({ category, childId, index = 0 }: { category: Category; childId: string; index?: number }) {
+export function CategoryCard({ category, childId, index = 0 }: { category: Category; childId: string | number; index?: number }) {
   const navigate = useNavigate();
   const colorClass = cardColors[index % cardColors.length];
+  const safeChildId = String(childId);
+  const safeSlug = String(category.slug);
   return (
     <Card
       className={`cursor-pointer hover:shadow-xl transition p-6 flex flex-col items-center text-center rounded-xl border-0 ${colorClass}`}
-      onClick={() => navigate({
-        to: `/parent/child/${childId}/category/${category.slug}`
-      })}
+      onClick={() => {
+        if (safeChildId && safeSlug && safeChildId !== '' && safeSlug !== '') {
+          navigate({
+            to: `/parent/child/${safeChildId}/category/${safeSlug}`
+          });
+        }
+      }}
       role="button"
       tabIndex={0}
       aria-label={`Go to ${category.name}`}

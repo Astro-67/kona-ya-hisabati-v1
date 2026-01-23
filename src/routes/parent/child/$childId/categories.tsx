@@ -30,6 +30,10 @@ function CategoriesPage() {
 
   // Fetch child name for breadcrumb
   useEffect(() => {
+    if (!childId || childId === 'undefined') {
+      setChildName(null);
+      return;
+    }
     (async () => {
       try {
         const res = await apiClient.get(`/parent/children/${childId}/`);
