@@ -31,7 +31,8 @@ export function CategoryCard({ category, childId, index = 0 }: { category: Categ
       onClick={() => {
         if (safeChildId && safeSlug && safeChildId !== '' && safeSlug !== '') {
           navigate({
-            to: `/parent/child/${safeChildId}/category/${safeSlug}`
+            to: `/parent/child/${safeChildId}/category/${safeSlug}`,
+            params: { childId: safeChildId, categorySlug: safeSlug },
           });
         }
       }}

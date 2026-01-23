@@ -20,13 +20,15 @@ function CategoriesPage() {
   childId = String(childId);
   const [, setChildName] = useState<string | null>(null);
 
-  // Fetch categories
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
+  // Fetch categories with correct query key and enabled flag
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ['categories', childId],
     queryFn: async () => {
+      if (!childId || childId === 'undefined') return { results: [] };
       const response = await apiClient.get('/content/categories/');
       return response.data;
     },
+    enabled: !!childId && childId !== 'undefined',
   });
 
   // Fetch child name for breadcrumb
@@ -61,13 +63,17 @@ function CategoriesPage() {
         </BreadcrumbList>
       </Breadcrumb>
       <h1 className="text-3xl font-bold mb-8">Choose a Topic</h1>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {(categories?.results ?? []).slice(0, 6).map((category: any, idx: number) => {
-          // Defensive: only pass valid childId
-          if (!childId || childId === '' || childId === 'undefined') return null;
-          return <CategoryCard key={category.id} category={category} childId={childId} index={idx} />;
-        })}
-      </div>
+      {isLoading ? (
+        <div className="text-center py-8">Loading...</div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {(categories?.results ?? []).slice(0, 6).map((category: any, idx: number) => {
+            // Defensive: only pass valid childId
+            if (!childId || childId === '' || childId === 'undefined') return null;
+            return <CategoryCard key={category.id} category={category} childId={childId} index={idx} />;
+          })}
+        </div>
+      )}
     </div>
   );
 }

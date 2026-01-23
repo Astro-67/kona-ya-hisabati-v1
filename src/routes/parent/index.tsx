@@ -68,7 +68,10 @@ function ParentDashboard() {
               child={child}
               onClick={() => {
                 if (child.id && child.id !== 'undefined') {
-                  navigate({ to: `/parent/child/${child.id}/categories` });
+                  navigate({
+                    to: `/parent/child/${child.id}/categories`,
+                    params: { childId: child.id.toString() },
+                  });
                 }
               }}
             />

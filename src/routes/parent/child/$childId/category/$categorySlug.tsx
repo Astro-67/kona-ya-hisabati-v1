@@ -15,11 +15,11 @@ function CategoryActivitiesPage() {
   categorySlug = String(categorySlug);
   const [difficulty, setDifficulty] = useState('');
 
-  const { data: activities } = useQuery({
-    queryKey: ['category-activities', categorySlug],
-    enabled: !!categorySlug && categorySlug !== 'undefined',
+  const { data: activities, isLoading } = useQuery({
+    queryKey: ['category-activities', childId, categorySlug],
+    enabled: !!childId && childId !== 'undefined' && !!categorySlug && categorySlug !== 'undefined',
     queryFn: async () => {
-      if (!categorySlug || categorySlug === 'undefined') return [];
+      if (!childId || childId === 'undefined' || !categorySlug || categorySlug === 'undefined') return [];
       const res = await apiClient.get(`/content/categories/${categorySlug}/activities/`);
       // Some endpoints return array, some return {results: array}
       if (Array.isArray(res.data)) return res.data;
