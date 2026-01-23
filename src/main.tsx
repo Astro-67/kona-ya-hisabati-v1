@@ -10,13 +10,24 @@ import { routeTree } from './routeTree.gen'
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
 
-// Create a new router instance
+
+// Helper: Read initial auth state from localStorage
+function getInitialAuth() {
+  const token = localStorage.getItem('auth_token')
+  const role = localStorage.getItem('user_role')
+  return {
+    isAuthenticated: !!token,
+    token,
+    role,
+  }
+}
 
 const TanStackQueryProviderContext = TanStackQueryProvider.getContext()
 const router = createRouter({
   routeTree,
   context: {
-    ...TanStackQueryProviderContext,
+    ...(TanStackQueryProviderContext as any),
+    auth: getInitialAuth(), // Inject initial auth state
   },
   defaultPreload: 'intent',
   scrollRestoration: true,

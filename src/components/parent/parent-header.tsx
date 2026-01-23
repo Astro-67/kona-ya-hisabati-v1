@@ -13,14 +13,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-function getInitials(name?: string | null) {
-  if (!name) return ''
+
+function getInitials(user: any) {
+  if (!user) return '';
+  // Prefer first_name and last_name if available
+  if (user.first_name || user.last_name) {
+    const first = user.first_name ? user.first_name[0].toUpperCase() : '';
+    const last = user.last_name ? user.last_name[0].toUpperCase() : '';
+    return `${first}${last}`;
+  }
+  // Fallback to name, username, or email
+  const name = user.name || user.username || user.email || '';
   return name
     .split(' ')
-    .map((s) => s[0].toUpperCase())
+    .map((s: string) => s[0].toUpperCase())
     .filter(Boolean)
     .slice(0, 2)
-    .join('')
+    .join('');
+}
+
+function getFullName(user: any) {
+  if (!user) return '';
+  const first = (user.first_name ?? user.firstName) || '';
+  const last = (user.last_name ?? user.lastName) || '';
+  if (first || last) return `${first} ${last}`.trim();
+  return user.name || user.username || user.email || '';
 }
 
 export function ParentHeader() {
@@ -58,13 +75,15 @@ export function ParentHeader() {
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar>
                     <AvatarFallback className="bg-(--color-kids-yellow)">
-                      {user && getInitials(user.name)}
+                      {getInitials(user)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  {getFullName(user)}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => logout()}>
                   <LogOut className="mr-2 h-4 w-4" />
