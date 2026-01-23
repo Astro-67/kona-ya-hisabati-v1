@@ -71,7 +71,7 @@ function ActivityPlayer() {
 
   return (
     <div className="container mx-auto px-2 py-6 max-w-2xl flex flex-col items-center space-y-6">
-      <Card className="w-full p-0 bg-gradient-to-br from-card via-white to-muted rounded-2xl shadow-lg p-8">
+      <Card className="w-full p-0 bg-linear-to-br from-card via-white to-muted rounded-2xl shadow-lg">
         {/* Header */}
         <div className="flex flex-col items-center pt-4 pb-4 px-2">
           {activity.category?.icon && <span className="text-5xl mb-2">{activity.category.icon}</span>}
@@ -137,7 +137,7 @@ function ActivityPlayer() {
                       <button
                         key={ans.id}
                         type="button"
-                        className={`rounded-xl py-3 font-bold border-2 transition text-lg shadow-md hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-16 min-w-16 focus:outline-none focus:ring-2 focus:ring-primary/50 ${answers[q.id] === ans.answer_value ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted border-muted-foreground'}`}
+                        className={`rounded-xl py-3 font-bold border-2 transition text-lg shadow-md hover:scale-105 flex flex-col items-center justify-center min-h-16 min-w-16 focus:outline-none focus:ring-2 focus:ring-primary/50 ${answers[q.id] === ans.answer_value ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted border-muted-foreground'}`}
                         onClick={() => !submitted && handleAnswer(q.id, ans.answer_value)}
                         disabled={submitted}
                       >
