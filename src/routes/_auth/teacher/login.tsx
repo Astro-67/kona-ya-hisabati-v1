@@ -51,7 +51,20 @@ export default function TeacherLogin() {
       return response.data
     },
     onSuccess: (data) => {
-      login(data.token, data.user)
+      const token = data?.token ?? data?.access ?? data?.tokens?.access ?? data?.tokens?.refresh
+
+      let userData = data?.user ?? data
+      if (userData && !userData.name) {
+        userData = { ...userData, name: `${userData.first_name ?? ''} ${userData.last_name ?? ''}`.trim() }
+      }
+
+      if (!token) {
+        console.warn('Login succeeded but no token found in response', data)
+        toast.error('Login succeeded but no token was returned by the server')
+        return
+      }
+
+      login(token, userData)
       toast.success('Login successful!')
       navigate({ to: '/teacher' })
     },

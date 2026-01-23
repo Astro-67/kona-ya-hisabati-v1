@@ -10,7 +10,8 @@ export function requireAuth() {
 
 export function requireRole(allowedRoles: Array<UserRole>) {
   requireAuth();
-  const role = localStorage.getItem('user_role') as UserRole;
+  const raw = localStorage.getItem('user_role') || '';
+  const role = raw.toString().toLowerCase() as UserRole;
   if (!allowedRoles.includes(role)) {
     throw redirect({ to: '/' });
   }

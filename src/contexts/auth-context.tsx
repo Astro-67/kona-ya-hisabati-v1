@@ -38,11 +38,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = (token: string, userData: User) => {
+    // Normalize role to lowercase to avoid mismatches with backend casing
+    const normalizedRole = (userData.role || '').toString().toLowerCase() as UserRole
+
     localStorage.setItem('auth_token', token);
-    localStorage.setItem('user_role', userData.role);
+    localStorage.setItem('user_role', normalizedRole);
     localStorage.setItem('user_data', JSON.stringify(userData));
     setUser(userData);
-    setRole(userData.role);
+    setRole(normalizedRole);
   };
 
   const logout = () => {

@@ -52,7 +52,22 @@ export default function ParentLogin() {
       return response.data
     },
     onSuccess: (data) => {
-      login(data.token, data.user)
+      // Support multiple token formats from backend (token, access, tokens.access)
+      const token = data?.token ?? data?.access ?? data?.tokens?.access ?? data?.tokens?.refresh
+
+      // Backend may return user with first_name/last_name — ensure `name` exists
+      let userData = data?.user ?? data
+      if (userData && !userData.name) {
+        userData = { ...userData, name: `${userData.first_name ?? ''} ${userData.last_name ?? ''}`.trim() }
+      }
+
+      if (!token) {
+        console.warn('Login succeeded but no token found in response', data)
+        toast.error('Login succeeded but no token was returned by the server')
+        return
+      }
+
+      login(token, userData)
       toast.success('Login successful!')
       navigate({ to: '/parent' })
     },

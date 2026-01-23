@@ -1,13 +1,18 @@
-import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 export interface Child {
   id: number | string
   name: string
   age?: number | null
+  grade?: string | null
+  progress?: number | null // 0 - 100
 }
 
 export function ChildProfileCard({ child, onClick }: { child: Child; onClick?: () => void }) {
-  const getInitials = (name?: string) => {
+  const initials = (name?: string) => {
     if (!name) return ''
     return name
       .split(' ')
@@ -17,29 +22,37 @@ export function ChildProfileCard({ child, onClick }: { child: Child; onClick?: (
       .toUpperCase()
   }
 
+  const progress = typeof child.progress === 'number' ? Math.max(0, Math.min(100, child.progress)) : 0
+
   return (
-    <div
-      role="button"
+    <Card
       onClick={onClick}
-      className="cursor-pointer rounded-md border bg-card p-4 shadow-sm hover:shadow-md"
+      className={cn('cursor-pointer hover:shadow-md', onClick ? 'hover:transform hover:-translate-y-0.5 transition' : '')}
     >
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-var(--color-kids-yellow)text-sm font-semibold text-black">
-          {getInitials(child.name)}
-        </div>
+      <CardContent>
+        <div className="flex items-center gap-4">
+          <Avatar>
+            <AvatarFallback className="bg-(--color-kids-yellow) text-black">{initials(child.name)}</AvatarFallback>
+          </Avatar>
 
-        <div>
-          <div className="font-medium">{child.name}</div>
-          {typeof child.age === 'number' ? <div className="text-sm text-muted-foreground">Age {child.age}</div> : null}
-        </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <div className="font-medium">{child.name}</div>
+              {child.grade ? <Badge className="ml-2" variant="primary">{child.grade}</Badge> : null}
+            </div>
 
-        <div className="ml-auto">
-          <Button size="sm" variant="ghost">
-            View
-          </Button>
+            <div className="mt-2 flex items-center gap-3">
+              <div className="w-full">
+                <div className="h-2 w-full rounded-full bg-muted">
+                  <div className="h-2 rounded-full bg-(--color-primary)" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">Progress: {progress}%</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 
