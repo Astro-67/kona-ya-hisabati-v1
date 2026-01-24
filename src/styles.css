@@ -1,115 +1,97 @@
-/* 1. Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-@import "tailwindcss";
-@import "tw-animate-css";
-
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Poppins:wght@500;600;700;800&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
-/* 2. Global Resets with Typography */
-body {
-  @apply m-0;
-  font-family: "Nunito", sans-serif; /* Default body font */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
-
-/* 3. Theme Configuration */
 :root {
-  /* --- Your Custom Palette --- */
+  /* Kids Color Palette */
   --kids-blue: #1E88E5;
   --kids-yellow: #FDD835;
   --kids-green: #43A047;
   --kids-orange: #FB8C00;
-  --kids-bg: #F5F5F5;
+  --kids-pink: #E91E63;
+  --kids-bg: #FFF8E7;
 
-  /* --- Semantic Mapping (Shadcn System) --- */
-  --background: var(--kids-bg);
-  --foreground: #1a1a1a; 
-
-  --card: #ffffff;
-  --card-foreground: #1a1a1a;
-
-  --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
-
-  /* Primary -> Blue */
+  /* Semantic Tokens */
+  --background: #ffffff;
+  --foreground: #2D3436;
+  --card: #FFFFFF;
+  --card-foreground: #2D3436;
+  --popover: #FFFFFF;
+  --popover-foreground: #2D3436;
   --primary: var(--kids-blue);
-  --primary-foreground: #ffffff;
-
-  /* Secondary -> Yellow (Great for highlights) */
+  --primary-foreground: #FFFFFF;
   --secondary: var(--kids-yellow);
-  --secondary-foreground: #1a1a1a; /* Dark text on yellow for readability */
-
-  /* Muted -> Light Gray */
-  --muted: #e5e5e5;
-  --muted-foreground: #737373;
-
-  /* Accent -> Orange */
+  --secondary-foreground: #2D3436;
+  --muted: #F0E6D3;
+  --muted-foreground: #636E72;
   --accent: var(--kids-orange);
-  --accent-foreground: #ffffff;
-
-  /* Destructive -> Standard Red (or map to Orange if preferred) */
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  --border: #e5e5e5;
-  --input: #e5e5e5;
+  --accent-foreground: #FFFFFF;
+  --success: var(--kids-green);
+  --success-foreground: #FFFFFF;
+  --destructive: #E74C3C;
+  --destructive-foreground: #FFFFFF;
+  --border: #E8DCC8;
+  --input: #F5EEE0;
   --ring: var(--kids-blue);
+  --radius: 1rem;
 
-  --radius: 0.75rem; /* slightly rounded is friendlier */
-
-  /* Charts */
+  /* Chart Colors */
   --chart-1: var(--kids-blue);
   --chart-2: var(--kids-green);
   --chart-3: var(--kids-orange);
   --chart-4: var(--kids-yellow);
-  --chart-5: #8e44ad;
+  --chart-5: var(--kids-pink);
 
   /* Sidebar */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #1a1a1a;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #2D3436;
   --sidebar-primary: var(--kids-blue);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #1a1a1a;
-  --sidebar-border: #e5e5e5;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFF3D6;
+  --sidebar-accent-foreground: #2D3436;
+  --sidebar-border: #E8DCC8;
   --sidebar-ring: var(--kids-blue);
 }
 
 .dark {
-  /* Dark Mode Mapping (Optional - adjusted for readability) */
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --card: #1e293b;
-  --card-foreground: #f8fafc;
-  --popover: #1e293b;
-  --popover-foreground: #f8fafc;
-  --primary: #3b82f6; /* Lighter blue for dark mode */
-  --primary-foreground: #0f172a;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --destructive: #7f1d1d;
-  --destructive-foreground: #f8fafc;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #3b82f6;
+  --background: #1A1A2E;
+  --foreground: #F5F5F5;
+  --card: #252542;
+  --card-foreground: #F5F5F5;
+  --popover: #252542;
+  --popover-foreground: #F5F5F5;
+  --primary: #4DA8FF;
+  --primary-foreground: #1A1A2E;
+  --secondary: #FFE066;
+  --secondary-foreground: #1A1A2E;
+  --muted: #2D2D4A;
+  --muted-foreground: #A0A0B0;
+  --accent: #FFB366;
+  --accent-foreground: #1A1A2E;
+  --success: #66BB6A;
+  --success-foreground: #1A1A2E;
+  --destructive: #FF6B6B;
+  --destructive-foreground: #1A1A2E;
+  --border: #3D3D5C;
+  --input: #2D2D4A;
+  --ring: #4DA8FF;
+  --sidebar: #252542;
+  --sidebar-foreground: #F5F5F5;
+  --sidebar-primary: #4DA8FF;
+  --sidebar-primary-foreground: #1A1A2E;
+  --sidebar-accent: #2D2D4A;
+  --sidebar-accent-foreground: #F5F5F5;
+  --sidebar-border: #3D3D5C;
+  --sidebar-ring: #4DA8FF;
 }
 
-/* 4. Tailwind v4 Theme Variables */
 @theme inline {
-  --font-heading: "Poppins", sans-serif;
-  --font-sans: "Nunito", sans-serif;
-
+  --font-sans: 'Nunito', sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -124,25 +106,34 @@ code {
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   
-  /* Custom Utilities */
+  /* Kids Custom Colors */
   --color-kids-blue: var(--kids-blue);
   --color-kids-yellow: var(--kids-yellow);
   --color-kids-green: var(--kids-green);
   --color-kids-orange: var(--kids-orange);
+  --color-kids-pink: var(--kids-pink);
   --color-kids-bg: var(--kids-bg);
-
+  
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
   
-  /* Sidebar Utilities */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -158,10 +149,49 @@ code {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  /* Apply Poppins to all headings automatically */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading;
+    font-family: 'Poppins', sans-serif;
   }
+}
+
+/* Fun Animations for Kids */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+.animate-pop {
+  animation: pop 0.3s ease-in-out;
+}
+
+.animate-confetti {
+  animation: confetti 1s ease-out forwards;
 }
