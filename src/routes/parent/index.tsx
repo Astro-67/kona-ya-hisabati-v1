@@ -26,12 +26,17 @@ function ParentDashboard() {
       const response = await apiClient.get('/parent/children/');
       const results = Array.isArray(response.data) ? response.data : response.data?.results ?? [];
       return results.map((s: any) => {
-        const id = String(s.child_id);
+        const id = String(s.child_id ?? s.id ?? s.childId ?? s.uuid ?? '');
         return {
-          id,
-          name: s.child_name || s.username || `Student ${id}`,
-          grade: null, // No grade in this API
-          progress: Math.max(0, Math.min(100, Number(s.total_points ?? 0))),
+          child_id: id,
+          child_name: s.child_name || s.username || `Student ${id}`,
+          total_points: Number(s.total_points ?? 0),
+          total_stars: Number(s.total_stars ?? 0),
+          completion_rate: Number(s.completion_rate ?? s.completion ?? 0),
+          total_activities_completed: Number(s.total_activities_completed ?? s.activities_completed ?? 0),
+          total_activities_attempted: Number(s.total_activities_attempted ?? s.activities_attempted ?? 0),
+          current_streak: Number(s.current_streak ?? 0),
+          recent_activities: s.recent_activities ?? s.recentActivities ?? [],
         };
       });
     },
@@ -64,13 +69,13 @@ function ParentDashboard() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {children?.map((child: any) => (
             <ChildProfileCard
-              key={child.id}
+              key={child.child_id}
               child={child}
               onClick={() => {
-                if (child.id && child.id !== 'undefined') {
+                if (child.child_id && child.child_id !== 'undefined') {
                   navigate({
-                    to: `/parent/child/${child.id}/categories`,
-                    params: { childId: child.id.toString() },
+                    to: `/parent/child/${child.child_id}/categories`,
+                    params: { childId: child.child_id.toString() },
                   });
                 }
               }}
