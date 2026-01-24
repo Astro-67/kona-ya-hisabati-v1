@@ -4,7 +4,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/no-duplicates
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { apiClient } from '@/lib/api';
 import { CategoryCard } from '@/components/parent/category-card';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -19,6 +19,7 @@ function CategoriesPage() {
   let { childId } = Route.useParams();
   childId = String(childId);
   const [, setChildName] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Fetch categories with correct query key and enabled flag
   const { data: categories, isLoading } = useQuery({
@@ -70,7 +71,22 @@ function CategoriesPage() {
           {(categories?.results ?? []).slice(0, 6).map((category: any, idx: number) => {
             // Defensive: only pass valid childId
             if (!childId || childId === '' || childId === 'undefined') return null;
-            return <CategoryCard key={category.id} category={category} childId={childId} index={idx} />;
+
+            return (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                childId={childId}
+                index={idx}
+                onClick={() => {
+                  if (!childId || childId === '' || childId === 'undefined' || !category?.slug) return;
+                  navigate({
+                    to: `/parent/child/${childId}/category/${String(category.slug)}`,
+                    params: { childId, categorySlug: String(category.slug) },
+                  });
+                }}
+              />
+            );
           })}
         </div>
       )}
