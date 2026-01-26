@@ -1,9 +1,12 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { BookOpen, Home, LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { apiClient } from '@/lib/api'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +46,31 @@ function getFullName(user: any) {
 export function ParentHeader() {
   const { user, logout } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
+  const activeChildId = useRouterState({
+    select: (state) => {
+      for (let i = state.matches.length - 1; i >= 0; i -= 1) {
+        const params = state.matches[i]?.params as Record<string, string> | undefined
+        if (params?.childId) return String(params.childId)
+      }
+      return null
+    },
+  })
+
+  const { data: activeChild } = useQuery({
+    queryKey: ['parent-active-child', activeChildId],
+    enabled: !!activeChildId && activeChildId !== 'undefined',
+    queryFn: async () => {
+      const res = await apiClient.get(`/parent/children/${activeChildId}/`)
+      return res.data
+    },
+  })
+
+  const activeChildName =
+    activeChild?.child_name ||
+    activeChild?.name ||
+    activeChild?.username ||
+    activeChild?.full_name ||
+    null
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card">
@@ -69,6 +97,11 @@ export function ParentHeader() {
 
         {/* Right: avatar / mobile menu */}
         <div className="flex items-center gap-2">
+          {activeChildName ? (
+            <Badge className="hidden md:inline-flex bg-kids-blue/15 text-kids-blue border border-kids-blue/40 font-semibold">
+              Active child: {activeChildName}
+            </Badge>
+          ) : null}
           <div className="hidden md:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -108,6 +141,11 @@ export function ParentHeader() {
       {isOpen ? (
         <div className="md:hidden border-t bg-card">
           <div className="container mx-auto px-4 py-3 flex flex-col gap-2">
+            {activeChildName ? (
+              <Badge className="w-fit bg-kids-blue/15 text-kids-blue border border-kids-blue/40 font-semibold">
+                Active child: {activeChildName}
+              </Badge>
+            ) : null}
             <Link to="/parent" className="flex items-center gap-3 p-2 rounded-md hover:bg-muted">
               <Home className="h-4 w-4" />
               <span>Dashboard</span>
