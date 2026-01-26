@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { apiClient } from '@/lib/api';
+import { localize } from '@/lib/utils';
 
 export const Route = createFileRoute('/parent/child/$childId/category/$categorySlug')({
   component: CategoryActivitiesPage,
@@ -43,6 +44,8 @@ function CategoryActivitiesPage() {
   // Normalize and filter activities (support both `difficulty` and `difficulty_level` fields)
   const normalizedActivities = (activities ?? []).map((a: any) => ({
     ...a,
+    title: localize(a.title) || a.title,
+    description: localize(a.description) || a.description,
     difficulty_level: a.difficulty_level ?? a.difficulty ?? 'unknown',
     expected_duration: a.expected_duration ?? a.duration_minutes ?? a.duration ?? 0,
   }));

@@ -5,6 +5,7 @@ import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
+import { localize } from "@/lib/utils";
 
 export interface Category {
   slug: string | number;
@@ -102,7 +103,8 @@ export function CategoryCard({
   const theme = cardThemes[index % cardThemes.length];
   const safeChildId = String(childId);
   const safeSlug = String(category.slug);
-  const categoryIcon = getCategoryIcon(category.name, category.icon);
+  const localizedName = localize(category.name)
+  const categoryIcon = getCategoryIcon(localizedName, category.icon);
 
   const handleClick = () => {
     if (onClick) {
@@ -134,7 +136,7 @@ export function CategoryCard({
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      aria-label={`Go to ${category.name}`}
+      aria-label={`Go to ${localizedName}`}
     >
       {/* Decorative accent bar */}
       <div className={`h-2 w-full ${theme.accent}`} />
@@ -168,13 +170,13 @@ export function CategoryCard({
             transition-colors duration-200
           `}
         >
-          {category.name}
+          {localizedName}
         </h3>
 
         {/* Description */}
         {category.description && (
           <p className="text-muted-foreground text-sm text-center line-clamp-2 mb-4">
-            {category.description}
+            {localize(category.description)}
           </p>
         )}
 

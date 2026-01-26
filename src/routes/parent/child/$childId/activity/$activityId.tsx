@@ -10,6 +10,165 @@ import ActivityHeader from '@/components/learning/ActivityHeader';
 import ActivityInfo from '@/components/learning/ActivityInfo';
 import ActivityProgress from '@/components/learning/ActivityProgress';
 import ActivityFeedback from '@/components/learning/ActivityFeedback';
+import { localize } from '@/lib/utils';
+
+const resolveQuestionPrompt = (question: any) =>
+  localize(
+    question?.question_text ??
+      question?.question_text_en ??
+      question?.question_text_sw ??
+      question?.prompt?.text ??
+      question?.prompt
+  );
+
+const resolveQuestionType = (question: any, activityTemplate?: string) => {
+  const raw = question?.question_type ?? question?.interaction_type ?? question?.type ?? activityTemplate;
+  if (!raw) return '';
+  const normalized = String(raw).toLowerCase();
+  if (['tap_select', 'tap-select', 'multiple_choice', 'multiple-choice', 'single_choice', 'single-choice'].includes(normalized)) {
+    return 'tap_select';
+  }
+  if (['count_objects', 'count-objects', 'object_counting', 'object-counting'].includes(normalized)) {
+    return 'count_objects';
+  }
+  if (['text_input', 'text-input', 'fill_blank', 'fill-blank', 'free_response', 'short_answer'].includes(normalized)) {
+    return 'text_input';
+  }
+  return normalized;
+};
+
+const resolveQuestionOptions = (question: any) => {
+  const raw = question?.answers ?? question?.options ?? question?.choices ?? [];
+  return Array.isArray(raw) ? raw : [];
+};
+
+const resolveAnswerValue = (answer: any) => answer?.answer_value ?? answer?.value ?? answer?.id ?? answer;
+
+const resolveAnswerLabel = (answer: any) =>
+  localize(
+    answer?.answer_text ??
+      answer?.answer_text_en ??
+      answer?.answer_text_sw ??
+      answer?.label ??
+      answer?.text ??
+      answer?.title ??
+      answer
+  );
+
+const resolveCorrectAnswer = (question: any) =>
+  question?.correct_answer ?? question?.correct_answer_value ?? question?.validation?.correct_value ?? question?.validation?.correctAnswer;
+
+const resolveQuestionImage = (question: any) =>
+  question?.question_image_display ?? question?.question_image_url ?? question?.question_image ?? question?.image_url ?? null;
+
+const resolveAttemptId = (data: any) => {
+  const direct =
+    data?.attempt_id ??
+    data?.attemptId ??
+    data?.id ??
+    data?.attempt?.id ??
+    data?.attempt?.attempt_id ??
+    data?.attempt?.attemptId;
+  if (direct !== undefined && direct !== null) return String(direct);
+
+  const activityFallback = data?.activity_id ?? data?.activity;
+  if (activityFallback !== undefined && activityFallback !== null && data?.status) {
+    return String(activityFallback);
+  }
+
+  return null;
+};
+
+const normalizeAnswer = (value: any) => {
+  if (value == null) return value;
+  if (typeof value === 'string') return value.trim().toLowerCase();
+  if (typeof value === 'number') return String(value);
+  return String(value);
+};
+
+const hasAnswerValue = (value: any) => {
+  if (value == null) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  return true;
+};
+
+const resolveIsAnswerCorrect = (question: any, answer: any) => {
+  if (!hasAnswerValue(answer)) return null;
+  const explicit = resolveCorrectAnswer(question);
+  if (explicit !== undefined && explicit !== null) {
+    return normalizeAnswer(answer) === normalizeAnswer(explicit);
+  }
+  const options = resolveQuestionOptions(question);
+  const correctOption = options.find((opt: any) => Boolean(opt?.is_correct));
+  if (correctOption) {
+    return normalizeAnswer(resolveAnswerValue(correctOption)) === normalizeAnswer(answer);
+  }
+  return null;
+};
+
+const resolveCanGrade = (question: any) => {
+  const explicit = resolveCorrectAnswer(question);
+  if (explicit !== undefined && explicit !== null) return true;
+  const options = resolveQuestionOptions(question);
+  return options.some((opt: any) => Boolean(opt?.is_correct));
+};
+
+const resolveAnimationClass = (animation: any) => {
+  if (!animation) return '';
+  const isObject = typeof animation === 'object';
+  if (isObject && !animation.animate_in) return '';
+  const type = isObject ? animation.animation_type ?? animation.type : animation;
+  const normalized = String(type ?? '').toLowerCase();
+  if (normalized === 'bounce') return 'animate-bounce';
+  if (normalized === 'pulse' || normalized === 'twinkle') return 'animate-pulse';
+  if (normalized === 'spin') return 'animate-spin';
+  return '';
+};
+
+const resolveAnimationDelay = (animation: any, index: number) => {
+  if (!animation || typeof animation !== 'object') return 0;
+  const delay = Number(animation.delay_between ?? 0);
+  return animation.animate_in && delay > 0 ? index * delay : 0;
+};
+
+const resolveObjectVisuals = (question: any) => {
+  const config = question?.config_data;
+  if (config?.display_mode === 'count_objects' && config?.object_image_url && Number(config.object_count ?? 0) > 0) {
+    const count = Math.max(0, Number(config.object_count ?? 0));
+    return {
+      items: Array.from({ length: count }).map((_, idx) => ({
+        key: `cfg-${question?.id ?? 'q'}-${idx}`,
+        src: config.object_image_url,
+        animation: config.animation,
+      })),
+      background: config.background,
+    };
+  }
+
+  const canvas = question?.canvas;
+  const objects = Array.isArray(canvas?.objects) ? canvas.objects : [];
+  if (!objects.length) return null;
+
+  const items: Array<{ key: string; src: string; animation?: any }> = [];
+  objects.forEach((obj: any, objIndex: number) => {
+    const count = Math.max(0, Number(obj?.count ?? 0));
+    const src = obj?.src ?? obj?.image ?? obj?.image_url ?? null;
+    if (!src || count <= 0) return;
+    for (let i = 0; i < count; i += 1) {
+      items.push({
+        key: `${obj?.id ?? objIndex}-${i}`,
+        src,
+        animation: obj?.animation,
+      });
+    }
+  });
+
+  if (!items.length) return null;
+  return {
+    items,
+    background: canvas?.background,
+  };
+};
 
 
 export const Route = createFileRoute('/parent/child/$childId/activity/$activityId')({
@@ -34,7 +193,12 @@ function ActivityPlayer() {
   });
 
   // Local UI state
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [currentAnswers, setCurrentAnswers] = useState<Record<string, any>>({});
+  const [firstAttemptAnswers, setFirstAttemptAnswers] = useState<Record<string, any>>({});
+  const [firstAttemptCorrect, setFirstAttemptCorrect] = useState<Record<string, boolean>>({});
+  const [resolvedQuestions, setResolvedQuestions] = useState<Record<string, boolean>>({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentFeedback, setCurrentFeedback] = useState<boolean | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showReward, setShowReward] = useState(false);
   const [completedScore, setCompletedScore] = useState<number | null>(null);
@@ -47,6 +211,7 @@ function ActivityPlayer() {
   const timersRef = useRef<Record<string, number>>({});
   const currentQuestionRef = useRef<string | null>(null);
   const startTimestampRef = useRef<number | null>(null);
+  const pendingSubmissionRef = useRef<{ answers: Record<string, any>; totalTime: number; complete: boolean } | null>(null);
 
   const startQuestionTimer = (qid: string) => {
     const now = Date.now();
@@ -75,7 +240,7 @@ function ActivityPlayer() {
   const startAttemptMutation = useMutation({
     mutationFn: (payload: any) => apiClient.post('/progress/attempts/start/', payload),
     onSuccess: (res: any) => {
-      const id = res?.data?.attempt_id || res?.data?.id || res?.data?.attemptId;
+      const id = resolveAttemptId(res?.data);
       if (id) {
         setAttemptId(id);
         try {
@@ -106,14 +271,6 @@ function ActivityPlayer() {
     },
   });
 
-  // Content submit mutation (kept near other mutations so hooks run in stable order)
-  const contentSubmitMutation = useMutation({
-    mutationFn: async (payload: any) => apiClient.post(`/content/activities/${activityId}/submit/`, payload),
-    onSuccess: () => {
-      refetch();
-    },
-  });
-
   // Ensure we start an attempt once per activity session when activity loads
   useEffect(() => {
     if (!activity) return;
@@ -122,6 +279,59 @@ function ActivityPlayer() {
     startAttemptMutation.mutate({ activity_id: activityId, student_id: childId });
 
   }, [activity]);
+
+  const activityTitle = localize(activity?.title ?? activity?.meta?.title ?? activity?.name) || 'Activity';
+  const activityInstructions = localize(activity?.instructions ?? activity?.description ?? activity?.meta?.description);
+  const categoryLabel = localize(activity?.category?.name ?? activity?.category);
+  const questions = Array.isArray(activity?.questions) ? activity?.questions : [];
+
+  // Progress calculation (answered/total)
+  const total = questions.length;
+  const answered = Object.values(resolvedQuestions).filter(Boolean).length;
+  const progress = total ? Math.round((answered / total) * 100) : 0;
+
+  const currentQuestion = questions[currentQuestionIndex] ?? null;
+  const currentQuestionId = currentQuestion ? String(currentQuestion.id ?? currentQuestionIndex) : '';
+  const isLastQuestion = currentQuestionIndex >= total - 1;
+  const currentAnswer = currentQuestionId ? currentAnswers[currentQuestionId] : undefined;
+  const canGradeCurrent = currentQuestion ? resolveCanGrade(currentQuestion) : false;
+  const canProceed = Boolean(currentQuestion) && (resolvedQuestions[currentQuestionId] || (!canGradeCurrent && hasAnswerValue(currentAnswer)));
+
+  useEffect(() => {
+    if (!currentQuestionId) return;
+    setCurrentFeedback(null);
+    startQuestionTimer(currentQuestionId);
+  }, [currentQuestionId]);
+
+  useEffect(() => {
+    if (!attemptId || !pendingSubmissionRef.current) return;
+    const pending = pendingSubmissionRef.current;
+    pendingSubmissionRef.current = null;
+    submitAttemptMutation.mutate({ attempt_id: attemptId, answers: pending.answers, time_spent: pending.totalTime, student_id: childId });
+    if (pending.complete) {
+      completeAttemptMutation.mutate({ attempt_id: attemptId, answers: pending.answers, time_spent: pending.totalTime, student_id: childId });
+    }
+  }, [attemptId]);
+
+  const resetActivityState = () => {
+    setCurrentAnswers({});
+    setFirstAttemptAnswers({});
+    setFirstAttemptCorrect({});
+    setResolvedQuestions({});
+    setCurrentQuestionIndex(0);
+    setCurrentFeedback(null);
+    setSubmitted(false);
+    setShowReward(false);
+    setCompletedScore(null);
+    timersRef.current = {};
+    currentQuestionRef.current = null;
+    startTimestampRef.current = null;
+    pendingSubmissionRef.current = null;
+  };
+
+  useEffect(() => {
+    resetActivityState();
+  }, [activityId]);
 
   if (isLoading) {
     return (
@@ -134,60 +344,85 @@ function ActivityPlayer() {
     return <div className="text-center text-destructive py-8">Failed to load activity.</div>;
   }
 
-  // Progress calculation (answered/total)
-  const total = activity.questions?.length || 0;
-  const answered = Object.keys(answers).length;
-  const progress = total ? Math.round((answered / total) * 100) : 0;
+  const submitProgress = (answersPayload: Record<string, any>, totalTime: number, complete: boolean) => {
+    if (!attemptId) {
+      pendingSubmissionRef.current = { answers: answersPayload, totalTime, complete };
+      if (!startAttemptMutation.isPending) {
+        startAttemptMutation.mutate({ activity_id: activityId, student_id: childId });
+      }
+      return;
+    }
 
-  // Local helper to record answer and start timing for that question
-  const handleAnswer = (questionId: string, value: any) => {
-    startQuestionTimer(questionId);
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    submitAttemptMutation.mutate({ attempt_id: attemptId, answers: answersPayload, time_spent: totalTime, student_id: childId });
+    if (complete) {
+      completeAttemptMutation.mutate({ attempt_id: attemptId, answers: answersPayload, time_spent: totalTime, student_id: childId });
+    }
   };
 
+  const registerFirstAttempt = (questionId: string, answer: any, isCorrect: boolean | null) => {
+    if (firstAttemptAnswers[questionId] !== undefined) {
+      return { answersPayload: firstAttemptAnswers, correctPayload: firstAttemptCorrect };
+    }
+    const nextAnswers = { ...firstAttemptAnswers, [questionId]: answer };
+    const nextCorrect = isCorrect === null ? firstAttemptCorrect : { ...firstAttemptCorrect, [questionId]: isCorrect };
+    setFirstAttemptAnswers(nextAnswers);
+    if (isCorrect !== null) setFirstAttemptCorrect(nextCorrect);
+    return { answersPayload: nextAnswers, correctPayload: nextCorrect };
+  };
 
+  const handleSelectAnswer = (question: any, questionId: string, answerValue: any) => {
+    if (submitted) return;
+    const isResolved = Boolean(resolvedQuestions[questionId]);
+    if (isResolved) return;
+    setCurrentAnswers((prev) => ({ ...prev, [questionId]: answerValue }));
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    const isCorrect = resolveIsAnswerCorrect(question, answerValue);
+    registerFirstAttempt(questionId, answerValue, isCorrect);
 
-    // stop timing for current question and compute totals
-    const { totalTime } = stopAndGetTotals();
+    if (isCorrect === false) {
+      setCurrentFeedback(false);
+      return;
+    }
 
-    // Prepare progress submit payload
-    const submitPayload = {
-      attempt_id: attemptId,
-      answers,
-      time_spent: totalTime,
-      student_id: childId,
-    };
+    setResolvedQuestions((prev) => ({ ...prev, [questionId]: true }));
+    setCurrentFeedback(isCorrect === true ? true : null);
+  };
 
-    // If attempt hasn't been started yet, start it, then submit in the start callback (non-blocking)
-    if (!attemptId) {
-      startAttemptMutation.mutate({ activity_id: activityId, student_id: childId }, {
-        onSuccess: (res: any) => {
-          const id = res?.data?.attempt_id || res?.data?.id || res?.data?.attemptId;
-          if (id) {
-            const payloadWithId = { ...submitPayload, attempt_id: id };
-            submitAttemptMutation.mutate(payloadWithId);
-            // Also call content submit
-            contentSubmitMutation.mutate({ child: childId, answers });
-            // If finished, complete
-            if (answered >= total) {
-              completeAttemptMutation.mutate({ attempt_id: id, answers, time_spent: totalTime, student_id: childId });
-            }
-          }
-        },
-      });
+  const handleTextInputChange = (question: any, questionId: string, value: string) => {
+    if (submitted) return;
+    const isResolved = Boolean(resolvedQuestions[questionId]);
+    if (isResolved) return;
+    setCurrentAnswers((prev) => ({ ...prev, [questionId]: value }));
+    const isCorrect = resolveIsAnswerCorrect(question, value);
+    if (isCorrect === true) {
+      setResolvedQuestions((prev) => ({ ...prev, [questionId]: true }));
+      setCurrentFeedback(true);
     } else {
-      // Non-blocking submit attempt
-      submitAttemptMutation.mutate(submitPayload);
-      // Continue to call content submit as before
-      contentSubmitMutation.mutate({ child: childId, answers });
+      setCurrentFeedback(null);
+    }
+  };
 
-      // If this was the last question, complete attempt
-      if (answered >= total) {
-        completeAttemptMutation.mutate({ attempt_id: attemptId, answers, time_spent: totalTime, student_id: childId });
-      }
+  const handleAdvance = (complete: boolean) => {
+    if (!currentQuestion || !currentQuestionId) return;
+    if (!hasAnswerValue(currentAnswer)) return;
+
+    const isCorrect = resolveIsAnswerCorrect(currentQuestion, currentAnswer);
+    if (isCorrect === false) {
+      setCurrentFeedback(false);
+      return;
+    }
+
+    const { answersPayload } = registerFirstAttempt(currentQuestionId, currentAnswer, isCorrect);
+    if (!resolvedQuestions[currentQuestionId]) {
+      setResolvedQuestions((prev) => ({ ...prev, [currentQuestionId]: true }));
+      setCurrentFeedback(isCorrect === true ? true : null);
+    }
+
+    const { totalTime } = stopAndGetTotals();
+    submitProgress(answersPayload, totalTime, complete);
+
+    if (!complete) {
+      setCurrentQuestionIndex((prev) => Math.min(prev + 1, Math.max(total - 1, 0)));
     }
   };
 
@@ -203,8 +438,8 @@ function ActivityPlayer() {
       <div className="relative container mx-auto px-4 py-6 max-w-2xl">
         {/* Activity Header */}
         <ActivityHeader
-          title={activity.title || 'Activity'}
-          subtitle={activity.category?.name}
+          title={activityTitle}
+          subtitle={categoryLabel}
           childName={undefined}
           progress={progress}
           onBack={() => window.history.back()}
@@ -213,8 +448,8 @@ function ActivityPlayer() {
         <div className="mt-6 space-y-4">
           {/* Activity Info */}
           <ActivityInfo
-            title={activity.title || 'Activity'}
-            instructions={activity.instructions}
+            title={activityTitle}
+            instructions={activityInstructions}
             score={completedScore ?? 0}
             maxScore={total}
             categoryIcon={activity.category?.icon || <Rocket className="h-7 w-7" />}
@@ -234,106 +469,133 @@ function ActivityPlayer() {
 
           {/* Questions or Reward */}
           {!showReward ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {activity.questions?.map((q: any, idx: number) => (
-                <Card key={q.id} className="border-2 border-border bg-card shadow-xl overflow-hidden">
-                  <CardContent className="p-6">
-                    {/* Question Number Badge */}
-                    <div className="flex justify-center mb-4">
-                      <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-4 py-2 shadow-lg">
-                        <Sparkles className="h-4 w-4" />
-                        <span className="font-bold">Question {idx + 1}</span>
+            <div className="space-y-4">
+              {currentQuestion ? (() => {
+                const questionId = currentQuestionId;
+                const promptText = resolveQuestionPrompt(currentQuestion);
+                const questionType = resolveQuestionType(currentQuestion, activity.template_type);
+                const options = resolveQuestionOptions(currentQuestion);
+                const correctAnswer = resolveCorrectAnswer(currentQuestion);
+                const visuals = resolveObjectVisuals(currentQuestion);
+                const questionImage = resolveQuestionImage(currentQuestion);
+                const canGrade = resolveCanGrade(currentQuestion);
+                const shouldUseTapSelect = questionType === 'tap_select' || questionType === 'count_objects' || (!questionType && options.length > 0);
+                const isResolved = Boolean(resolvedQuestions[questionId]);
+                const showCorrect = isResolved && canGrade;
+                const showIncorrect = currentFeedback === false && canGrade;
+
+                return (
+                  <Card key={questionId} className="border-2 border-border bg-card shadow-xl overflow-hidden">
+                    <CardContent className="p-6">
+                      {/* Question Number Badge */}
+                      <div className="flex justify-center mb-4">
+                        <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-4 py-2 shadow-lg">
+                          <Sparkles className="h-4 w-4" />
+                          <span className="font-bold">Question {currentQuestionIndex + 1}</span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Question Text */}
-                    <h3 className="text-xl md:text-2xl font-bold text-center text-foreground mb-6">{q.question_text}</h3>
+                      {/* Question Text */}
+                      <h3 className="text-xl md:text-2xl font-bold text-center text-foreground mb-6">{promptText}</h3>
 
-                    {/* Visuals (count objects / image) */}
-                    {q.config_data?.display_mode === 'count_objects' && q.config_data?.object_image_url && q.config_data?.object_count > 0 ? (
-                      <div className="flex justify-center flex-wrap gap-5 my-4">
-                        {Array.from({ length: q.config_data.object_count }).map((_, i) => {
-                          const anim = q.config_data.animation || {};
-                          let animClass = '';
-                          if (anim.animate_in) {
-                            if (anim.animation_type === 'bounce') animClass = 'animate-bounce';
-                            else if (anim.animation_type === 'pulse') animClass = 'animate-pulse';
-                            else if (anim.animation_type === 'spin') animClass = 'animate-spin';
-                          }
-                          const delay = anim.animate_in && anim.delay_between ? i * anim.delay_between : 0;
-                          return (
-                            <img
-                              key={i}
-                              src={q.config_data.object_image_url}
-                              alt="Object"
-                              className={`w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-sm ${animClass}`}
-                              style={animClass ? { animationDelay: `${delay}ms` } : {}}
-                            />
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      q.question_image_display && (
-                        <img src={q.question_image_display} alt="Question visual" className="mb-3 rounded-lg mx-auto" style={{ maxWidth: 180, maxHeight: 180 }} />
-                      )
-                    )}
+                      {/* Visuals (count objects / image) */}
+                      {visuals?.items.length ? (
+                        <div
+                          className="flex justify-center flex-wrap gap-5 my-4"
+                          style={visuals.background ? { background: visuals.background, borderRadius: '0.75rem', padding: '0.75rem' } : undefined}
+                        >
+                          {visuals.items.map((item, i) => {
+                            const animClass = resolveAnimationClass(item.animation);
+                            const delay = resolveAnimationDelay(item.animation, i);
+                            return (
+                              <img
+                                key={item.key}
+                                src={item.src}
+                                alt="Object"
+                                className={`w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-sm ${animClass}`}
+                                style={animClass && delay ? { animationDelay: `${delay}ms` } : undefined}
+                              />
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        questionImage && (
+                          <img src={questionImage} alt="Question visual" className="mb-3 rounded-lg mx-auto" style={{ maxWidth: 180, maxHeight: 180 }} />
+                        )
+                      )}
 
-                    {/* Answers */}
-                    {q.question_type === 'tap_select' ? (
-                      <div className="grid grid-cols-2 gap-3">
-                        {q.answers?.map((ans: any, aidx: number) => {
-                          const isSelected = answers[q.id] === ans.answer_value;
-                          const isCorrectAnswer = ans.answer_value === q.correct_answer || ans.is_correct;
-                          const showResult = answers[q.id] !== undefined || submitted;
+                      {/* Answers */}
+                      {shouldUseTapSelect ? (
+                        <div className="grid grid-cols-2 gap-3">
+                          {options.map((ans: any, aidx: number) => {
+                            const answerValue = resolveAnswerValue(ans);
+                            const isSelected = currentAnswer === answerValue;
+                            const isCorrectAnswer = Boolean(ans?.is_correct) || (canGrade && String(answerValue) === String(correctAnswer));
 
-                          let buttonStyle = 'bg-card border-2 border-border hover:border-primary hover:bg-primary/5';
-                          if (showResult) {
-                            if (isCorrectAnswer) {
+                            let buttonStyle = 'bg-card border-2 border-border hover:border-primary hover:bg-primary/5';
+                            if (showCorrect && isCorrectAnswer) {
                               buttonStyle = 'bg-kids-green/20 border-2 border-kids-green text-kids-green';
-                            } else if (isSelected) {
+                            } else if (showIncorrect && isSelected) {
                               buttonStyle = 'bg-destructive/20 border-2 border-destructive text-destructive';
-                            } else {
-                              buttonStyle = 'bg-muted border-2 border-muted opacity-50';
+                            } else if (isSelected) {
+                              buttonStyle = 'bg-primary/10 border-2 border-primary text-primary';
                             }
-                          }
 
-                          return (
-                            <button
-                              key={ans.id}
-                              type="button"
-                              onClick={() => !submitted && (startQuestionTimer(q.id), handleAnswer(q.id, ans.answer_value))}
-                              disabled={submitted || answers[q.id] !== undefined}
-                              className={`relative p-4 rounded-2xl font-bold text-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed ${buttonStyle}`}
-                            >
-                              <span className="absolute top-2 left-2 h-6 w-6 rounded-lg bg-muted text-muted-foreground text-xs font-bold flex items-center justify-center">{String.fromCharCode(65 + aidx)}</span>
-                              <span className="block mt-4">{ans.answer_text}</span>
-                              {showResult && (isCorrectAnswer) && <Star className="absolute top-2 right-2 h-5 w-5 text-kids-yellow fill-kids-yellow" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <input
-                        className="border rounded px-3 py-1 w-full text-center text-lg"
-                        type="text"
-                        value={answers[q.id] || ''}
-                        onFocus={() => startQuestionTimer(q.id)}
-                        onChange={(e) => handleAnswer(q.id, e.target.value)}
-                        disabled={submitted}
-                      />
-                    )}
-                  </CardContent>
+                            return (
+                              <button
+                                key={String(ans?.id ?? answerValue ?? aidx)}
+                                type="button"
+                                onClick={() => handleSelectAnswer(currentQuestion, questionId, answerValue)}
+                                disabled={submitted || isResolved}
+                                className={`relative p-4 rounded-2xl font-bold text-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed ${buttonStyle}`}
+                              >
+                                <span className="absolute top-2 left-2 h-6 w-6 rounded-lg bg-muted text-muted-foreground text-xs font-bold flex items-center justify-center">{String.fromCharCode(65 + aidx)}</span>
+                                <span className="block mt-4">{resolveAnswerLabel(ans)}</span>
+                                {showCorrect && isCorrectAnswer && <Star className="absolute top-2 right-2 h-5 w-5 text-kids-yellow fill-kids-yellow" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <input
+                          className="border rounded px-3 py-1 w-full text-center text-lg"
+                          type="text"
+                          value={currentAnswer ?? ''}
+                          onChange={(e) => handleTextInputChange(currentQuestion, questionId, e.target.value)}
+                          disabled={submitted || isResolved}
+                        />
+                      )}
+
+                      {currentFeedback === false && (
+                        <div className="mt-4 text-center text-destructive font-semibold">Not quite. Try again!</div>
+                      )}
+                      {currentFeedback === true && (
+                        <div className="mt-4 text-center text-kids-green font-semibold">
+                          {isLastQuestion ? 'Correct! Tap Finish to complete.' : 'Correct! Tap Next to continue.'}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })() : (
+                <Card className="border-2 border-border bg-card shadow-xl overflow-hidden">
+                  <CardContent className="p-6 text-center text-muted-foreground">No questions found for this activity.</CardContent>
                 </Card>
-              ))}
+              )}
 
-              {/* Footer: Progress and Submit */}
+              {/* Footer: Progress and Navigation */}
               <div className="flex items-center justify-between mt-8">
                 <div className="text-sm text-muted-foreground">Progress: {progress}%</div>
-                <Button type="submit" className="bg-primary text-primary-foreground" disabled={submitted || submitAttemptMutation.isPending || completeAttemptMutation.isPending}>
-                  {submitted ? 'Submitted' : submitAttemptMutation.isPending || completeAttemptMutation.isPending ? 'Submitting...' : 'Submit Answers'}
+                <Button
+                  type="button"
+                  className="bg-primary text-primary-foreground"
+                  onClick={() => handleAdvance(isLastQuestion)}
+                  disabled={submitted || submitAttemptMutation.isPending || completeAttemptMutation.isPending || !canProceed}
+                >
+                  {isLastQuestion ? 'Finish' : 'Next'}
                 </Button>
               </div>
-            </form>
+            </div>
           ) : (
             /* Reward Screen */
             <Card className="border-2 border-kids-yellow bg-linear-to-br from-card via-card to-kids-yellow/10 shadow-xl overflow-hidden">
@@ -360,27 +622,35 @@ function ActivityPlayer() {
                 <p className="text-lg text-muted-foreground mb-4">You completed the activity!</p>
 
                 <div className="inline-flex items-center gap-3 bg-muted rounded-2xl px-6 py-3 mb-6">
-                  <span className="text-2xl font-bold text-primary">{completedScore ?? Object.values(answers).filter((a) => !!a).length}</span>
+                  <span className="text-2xl font-bold text-primary">{completedScore ?? Object.values(firstAttemptCorrect).filter(Boolean).length}</span>
                   <span className="text-muted-foreground">out of</span>
                   <span className="text-2xl font-bold text-foreground">{total}</span>
                   <span className="text-muted-foreground">correct!</span>
                 </div>
 
-                <Button
-                  onClick={() => {
-                    // Reset local UI state but keep activity data
-                    setAnswers({});
-                    setSubmitted(false);
-                    setShowReward(false);
-                    setCompletedScore(null);
-                    refetch();
-                  }}
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg px-8 py-6 rounded-2xl shadow-lg hover:scale-105 transition-transform"
-                >
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Play Again
-                </Button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Button
+                    onClick={() => {
+                      resetActivityState();
+                      refetch();
+                    }}
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg px-8 py-6 rounded-2xl shadow-lg hover:scale-105 transition-transform"
+                  >
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Play Again
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      window.location.href = `/parent/child/${childId}/categories`;
+                    }}
+                    size="lg"
+                    variant="outline"
+                    className="font-bold text-lg px-8 py-6 rounded-2xl shadow-lg hover:scale-105 transition-transform"
+                  >
+                    Choose Another Activity
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
