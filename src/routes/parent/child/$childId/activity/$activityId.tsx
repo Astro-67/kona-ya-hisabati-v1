@@ -183,12 +183,27 @@ function ActivityPlayer() {
   const queryClient = useQueryClient();
 
   // Fetch activity details (questions, etc)
-  const { data: activity, isLoading, isError, refetch } = useQuery({
+  const { data: activity, isLoading, isError } = useQuery({
     queryKey: ['activity', activityId],
     enabled: !!activityId && activityId !== 'undefined',
     queryFn: async () => {
       const res = await apiClient.get(`/content/activities/${activityId}/`);
       return res.data;
+    },
+  });
+
+  const { data: currentAttempt, isLoading: isAttemptLoading } = useQuery({
+    queryKey: ['activity-attempt', activityId, childId],
+    enabled: !!activityId && activityId !== 'undefined' && !!childId && childId !== 'undefined',
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get('/progress/attempts/current/', {
+          params: { activity_id: activityId, student_id: childId },
+        });
+        return res.data;
+      } catch (err) {
+        return null;
+      }
     },
   });
 
@@ -252,6 +267,23 @@ function ActivityPlayer() {
     },
   });
 
+  const restartAttemptMutation = useMutation({
+    mutationFn: (payload: any) => apiClient.post('/progress/attempts/restart/', payload),
+    onSuccess: (res: any) => {
+      const id = resolveAttemptId(res?.data);
+      if (id) {
+        setAttemptId(id);
+        try {
+          sessionStorage.setItem(attemptStorageKey, String(id));
+        } catch (e) {
+          // ignore
+        }
+      }
+      resetActivityState();
+      queryClient.invalidateQueries({ queryKey: ['activity-attempt', activityId, childId] });
+    },
+  });
+
   const submitAttemptMutation = useMutation({
     mutationFn: (payload: any) => apiClient.post('/progress/attempts/submit/', payload),
     onSuccess: () => {
@@ -275,10 +307,12 @@ function ActivityPlayer() {
   useEffect(() => {
     if (!activity) return;
     if (attemptId) return; // already started in this session
+    if (isAttemptLoading) return;
+    if (currentAttempt) return;
 
     startAttemptMutation.mutate({ activity_id: activityId, student_id: childId });
 
-  }, [activity]);
+  }, [activity, attemptId, isAttemptLoading, currentAttempt]);
 
   const activityTitle = localize(activity?.title ?? activity?.meta?.title ?? activity?.name) || 'Activity';
   const activityInstructions = localize(activity?.instructions ?? activity?.description ?? activity?.meta?.description);
@@ -296,6 +330,26 @@ function ActivityPlayer() {
   const currentAnswer = currentQuestionId ? currentAnswers[currentQuestionId] : undefined;
   const canGradeCurrent = currentQuestion ? resolveCanGrade(currentQuestion) : false;
   const canProceed = Boolean(currentQuestion) && (resolvedQuestions[currentQuestionId] || (!canGradeCurrent && hasAnswerValue(currentAnswer)));
+
+  useEffect(() => {
+    if (!currentAttempt) return;
+    const id = resolveAttemptId(currentAttempt);
+    if (id && attemptId !== id) {
+      setAttemptId(id);
+      try {
+        sessionStorage.setItem(attemptStorageKey, String(id));
+      } catch (e) {
+        // ignore
+      }
+    }
+    const status = String(currentAttempt?.status ?? '').toLowerCase();
+    if (status === 'completed' && !showReward) {
+      setShowReward(true);
+      setSubmitted(true);
+      const scoreValue = Number(currentAttempt?.score);
+      if (!Number.isNaN(scoreValue)) setCompletedScore(scoreValue);
+    }
+  }, [currentAttempt, attemptId, attemptStorageKey, showReward]);
 
   useEffect(() => {
     if (!currentQuestionId) return;
@@ -631,14 +685,14 @@ function ActivityPlayer() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <Button
                     onClick={() => {
-                      resetActivityState();
-                      refetch();
+                      restartAttemptMutation.mutate({ activity_id: activityId, student_id: childId });
                     }}
                     size="lg"
+                    disabled={restartAttemptMutation.isPending}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg px-8 py-6 rounded-2xl shadow-lg hover:scale-105 transition-transform"
                   >
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Play Again
+                    {restartAttemptMutation.isPending ? 'Restarting...' : 'Play Again'}
                   </Button>
                   <Button
                     onClick={() => {

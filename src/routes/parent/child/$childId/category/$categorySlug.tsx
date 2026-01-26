@@ -2,7 +2,7 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ChevronRight, Clock, HelpCircle, Sparkles, Star, Zap } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Clock, HelpCircle, Sparkles, Star, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,28 @@ function CategoryActivitiesPage() {
     difficulty_level: a.difficulty_level ?? a.difficulty ?? 'unknown',
     expected_duration: a.expected_duration ?? a.duration_minutes ?? a.duration ?? 0,
   }));
+
+  const activityIds = normalizedActivities.map((activity: any) => activity.id).filter((id: any) => id !== undefined && id !== null);
+
+  const { data: attemptsByActivity } = useQuery({
+    queryKey: ['activity-attempts', childId, categorySlug, activityIds.join(',')],
+    enabled: !!childId && childId !== 'undefined' && activityIds.length > 0,
+    queryFn: async () => {
+      const results = await Promise.allSettled(
+        activityIds.map((activityId: any) =>
+          apiClient.get('/progress/attempts/current/', {
+            params: { activity_id: activityId, student_id: childId },
+          })
+        )
+      );
+      const map: Record<string, any> = {};
+      results.forEach((result, index) => {
+        const id = String(activityIds[index]);
+        map[id] = result.status === 'fulfilled' ? result.value.data : null;
+      });
+      return map;
+    },
+  });
 
   const filtered = difficulty && difficulty !== 'all'
     ? normalizedActivities.filter((a: any) => a.difficulty_level === difficulty)
@@ -132,18 +154,30 @@ function CategoryActivitiesPage() {
               }
             })();
 
+            const attempt = attemptsByActivity?.[String(activity.id)] ?? null;
+            const attemptStatus = String(attempt?.status ?? '').toLowerCase();
+            const isCompleted = attemptStatus === 'completed' || Boolean(attempt?.completed_at);
+
             return (
               <Card key={activity.id} className={`group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-t-4 ${getCardAccent(index)} rounded-2xl`}>
                 <CardContent className="p-5 space-y-4">
                   {/* Title & Featured Badge */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-extrabold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-2">{activity.title}</h3>
-                    {activity.is_featured && (
-                      <Badge className="bg-kids-yellow text-secondary-foreground border-0 shadow-sm shrink-0 font-bold">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        Featured
-                      </Badge>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {isCompleted && (
+                        <Badge className="bg-kids-green text-white border-0 shadow-sm shrink-0 font-bold">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Completed
+                        </Badge>
+                      )}
+                      {activity.is_featured && (
+                        <Badge className="bg-kids-yellow text-secondary-foreground border-0 shadow-sm shrink-0 font-bold">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          Featured
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-muted-foreground text-sm font-medium line-clamp-2">{activity.description}</p>
