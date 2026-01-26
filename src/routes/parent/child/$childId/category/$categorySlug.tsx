@@ -41,14 +41,27 @@ function CategoryActivitiesPage() {
     },
   });
 
+  const normalizeDifficulty = (value?: string) => {
+    const normalized = String(value ?? '').toLowerCase();
+    if (['beginner', 'easy', 'starter', 'intro'].includes(normalized)) return 'beginner';
+    if (['intermediate', 'medium'].includes(normalized)) return 'intermediate';
+    if (['advanced', 'hard', 'expert'].includes(normalized)) return 'advanced';
+    return 'unknown';
+  };
+
   // Normalize and filter activities (support both `difficulty` and `difficulty_level` fields)
-  const normalizedActivities = (activities ?? []).map((a: any) => ({
-    ...a,
-    title: localize(a.title) || a.title,
-    description: localize(a.description) || a.description,
-    difficulty_level: a.difficulty_level ?? a.difficulty ?? 'unknown',
-    expected_duration: a.expected_duration ?? a.duration_minutes ?? a.duration ?? 0,
-  }));
+  const normalizedActivities = (activities ?? []).map((a: any) => {
+    const difficultyLevel = a.difficulty_level ?? a.difficulty ?? 'unknown';
+    return {
+      ...a,
+      title: localize(a.title) || a.title,
+      description: localize(a.description) || a.description,
+      difficulty_level: difficultyLevel,
+      difficulty_key: normalizeDifficulty(difficultyLevel),
+      difficulty_label: String(difficultyLevel ?? 'unknown'),
+      expected_duration: a.expected_duration ?? a.duration_minutes ?? a.duration ?? 0,
+    };
+  });
 
   const activityIds = normalizedActivities.map((activity: any) => activity.id).filter((id: any) => id !== undefined && id !== null);
 
@@ -73,7 +86,7 @@ function CategoryActivitiesPage() {
   });
 
   const filtered = difficulty && difficulty !== 'all'
-    ? normalizedActivities.filter((a: any) => a.difficulty_level === difficulty)
+    ? normalizedActivities.filter((a: any) => a.difficulty_key === difficulty)
     : normalizedActivities;
 
   return (
@@ -120,9 +133,9 @@ function CategoryActivitiesPage() {
               </SelectTrigger>
               <SelectContent className="rounded-xl">
                 <SelectItem value="all" className="font-medium">All levels</SelectItem>
-                <SelectItem value="easy" className="font-medium">Easy</SelectItem>
-                <SelectItem value="medium" className="font-medium">Medium</SelectItem>
-                <SelectItem value="hard" className="font-medium">Hard</SelectItem>
+                <SelectItem value="beginner" className="font-medium">Beginner</SelectItem>
+                <SelectItem value="intermediate" className="font-medium">Intermediate</SelectItem>
+                <SelectItem value="advanced" className="font-medium">Advanced</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -142,12 +155,12 @@ function CategoryActivitiesPage() {
           {filtered.map((activity: any, index: number) => {
             const difficultyStyles = (() => {
               if (!activity) return { bg: "bg-muted", text: "text-muted-foreground", border: "border-border", icon: "bg-muted" };
-              switch (activity.difficulty_level) {
-                case "easy":
+              switch (activity.difficulty_key) {
+                case "beginner":
                   return { bg: "bg-kids-green/10", text: "text-kids-green", border: "border-kids-green/30", icon: "bg-kids-green" };
-                case "medium":
+                case "intermediate":
                   return { bg: "bg-kids-orange/10", text: "text-kids-orange", border: "border-kids-orange/30", icon: "bg-kids-orange" };
-                case "hard":
+                case "advanced":
                   return { bg: "bg-kids-pink/10", text: "text-kids-pink", border: "border-kids-pink/30", icon: "bg-kids-pink" };
                 default:
                   return { bg: "bg-muted", text: "text-muted-foreground", border: "border-border", icon: "bg-muted" };
@@ -161,6 +174,16 @@ function CategoryActivitiesPage() {
             return (
               <Card key={activity.id} className={`group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-t-4 ${getCardAccent(index)} rounded-2xl`}>
                 <CardContent className="p-5 space-y-4">
+                  {activity.thumbnail_url && (
+                    <div className="overflow-hidden rounded-xl border border-border bg-muted">
+                      <img
+                        src={activity.thumbnail_url}
+                        alt={typeof activity.title === 'string' ? activity.title : 'Activity thumbnail'}
+                        className="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
                   {/* Title & Featured Badge */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-extrabold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-2">{activity.title}</h3>
@@ -191,7 +214,7 @@ function CategoryActivitiesPage() {
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground font-semibold">Difficulty</p>
-                        <p className={`text-sm font-bold capitalize ${difficultyStyles.text}`}>{activity.difficulty_level}</p>
+                        <p className={`text-sm font-bold capitalize ${difficultyStyles.text}`}>{activity.difficulty_label}</p>
                       </div>
                     </div>
 
@@ -213,7 +236,7 @@ function CategoryActivitiesPage() {
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground font-semibold">Points</p>
-                        <p className="text-sm font-bold text-kids-orange">{activity.points_reward} pts</p>
+                        <p className="text-sm font-bold text-kids-orange">{activity.reward_points} pts</p>
                       </div>
                     </div>
 
