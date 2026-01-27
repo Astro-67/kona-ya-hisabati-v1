@@ -65,7 +65,7 @@ function getChildInitials(name: string | null) {
 
 const navItems = [
   { to: '/parent', label: 'Dashboard', icon: Home },
-  { to: '/parent/home-activities', label: 'Home-Activities', icon: Gamepad2 },
+  { to: '/parent/home-activities', label: 'Activities', icon: Gamepad2 },
   { to: '/parent/guides', label: 'Guide', icon: BookOpen },
 ]
 
