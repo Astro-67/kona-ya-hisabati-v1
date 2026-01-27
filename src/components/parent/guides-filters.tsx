@@ -1,42 +1,51 @@
+'use client'
+
 import { useEffect, useMemo, useState } from 'react'
-import { Search, X } from 'lucide-react'
+import {
+  BookOpen,
+  ChevronDown,
+  Filter,
+  Home,
+  Layers,
+  Search,
+  SlidersHorizontal,
+  Video,
+  X,
+} from 'lucide-react'
 
 import type { ParentGuideAgeGroup, ParentGuideType } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 const resourceTabs = [
-  { label: 'All', value: '' },
-  { label: 'Guides', value: 'text_guide' },
-  { label: 'Videos', value: 'video_tutorial' },
-  { label: 'Activities', value: 'offline_activity' },
+  { label: 'All', value: '', icon: Layers },
+  { label: 'Guides', value: 'text_guide', icon: BookOpen, color: 'kids-blue' },
+  { label: 'Videos', value: 'video_tutorial', icon: Video, color: 'kids-orange' },
+  { label: 'Activities', value: 'offline_activity', icon: Home, color: 'kids-green' },
 ]
 
-const guideTypeOptions: Array<{ value: ParentGuideType; label: string }> = [
-  { value: 'learning_tips', label: 'Learning Tips' },
-  { value: 'activity_ideas', label: 'Activity Ideas' },
-  { value: 'progress_help', label: 'Progress Help' },
-  { value: 'motivation', label: 'Motivation' },
-  { value: 'development', label: 'Development' },
-  { value: 'homework_help', label: 'Homework Help' },
+const guideTypeOptions: Array<{ value: ParentGuideType; label: string; color: string }> = [
+  { value: 'learning_tips', label: 'Learning Tips', color: 'bg-kids-blue' },
+  { value: 'activity_ideas', label: 'Activities', color: 'bg-kids-green' },
+  { value: 'progress_help', label: 'Progress', color: 'bg-kids-orange' },
+  { value: 'motivation', label: 'Motivation', color: 'bg-kids-pink' },
+  { value: 'development', label: 'Development', color: 'bg-kids-yellow' },
+  { value: 'homework_help', label: 'Homework', color: 'bg-purple-500' },
 ]
 
-const ageGroupOptions: Array<{ value: ParentGuideAgeGroup | ''; label: string }> =
-  [
-    { value: '', label: 'All Ages' },
-    { value: 'pre_primary', label: 'Pre-Primary' },
-    { value: 'standard_1', label: 'Standard 1' },
-    { value: 'standard_2', label: 'Standard 2' },
-  ]
+const ageGroupOptions: Array<{ value: ParentGuideAgeGroup | ''; label: string; shortLabel: string }> = [
+  { value: '', label: 'All Ages', shortLabel: 'All' },
+  { value: 'pre_primary', label: 'Pre-Primary (3-5)', shortLabel: '3-5' },
+  { value: 'standard_1', label: 'Standard 1 (6-7)', shortLabel: '6-7' },
+  { value: 'standard_2', label: 'Standard 2 (7-8)', shortLabel: '7-8' },
+]
 
 export interface GuidesFiltersProps {
   resourceType: string
@@ -62,7 +71,7 @@ export function GuidesFilters({
   onClearFilters,
 }: GuidesFiltersProps) {
   const [draftSearch, setDraftSearch] = useState(searchQuery)
-  const [announcement, setAnnouncement] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   useEffect(() => {
     setDraftSearch(searchQuery)
@@ -75,140 +84,217 @@ export function GuidesFilters({
     return () => window.clearTimeout(timer)
   }, [draftSearch, onSearchQueryChange])
 
-  useEffect(() => {
-    const guideTypeLabels = guideTypeOptions
-      .filter((option) => guideTypes.includes(option.value))
-      .map((option) => option.label)
-      .join(', ')
-    const ageLabel =
-      ageGroupOptions.find((option) => option.value === ageGroup)?.label ?? 'All Ages'
-    const resourceLabel =
-      resourceTabs.find((option) => option.value === resourceType)?.label ?? 'All'
-    setAnnouncement(
-      `Filters updated. ${resourceLabel} resources, ${ageLabel}, guide types: ${guideTypeLabels || 'Any'}.`
-    )
-  }, [resourceType, ageGroup, guideTypes])
-
-  const hasFilters = useMemo(
-    () =>
-      Boolean(resourceType) ||
-      Boolean(ageGroup) ||
-      guideTypes.length > 0 ||
-      Boolean(searchQuery),
-    [resourceType, ageGroup, guideTypes.length, searchQuery]
-  )
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (resourceType) count += 1
+    if (ageGroup) count += 1
+    count += guideTypes.length
+    if (searchQuery) count += 1
+    return count
+  }, [resourceType, ageGroup, guideTypes.length, searchQuery])
 
   const toggleGuideType = (value: string) => {
     if (guideTypes.includes(value)) {
       onGuideTypesChange(guideTypes.filter((type) => type !== value))
-      return
+    } else {
+      onGuideTypesChange([...guideTypes, value])
     }
-    onGuideTypesChange([...guideTypes, value])
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <Tabs value={resourceType} onValueChange={onResourceTypeChange}>
-              <TabsList aria-label="Filter by resource type">
-                {resourceTabs.map((tab) => (
-                  <TabsTrigger key={tab.label} value={tab.value}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-
-            <Select value={ageGroup} onValueChange={onAgeGroupChange}>
-              <SelectTrigger
-                className="min-h-11 min-w-45"
-                aria-label="Filter by age group"
-              >
-                <SelectValue placeholder="Age group" />
-              </SelectTrigger>
-              <SelectContent>
-                {ageGroupOptions
-                  .filter((option) => option.value !== '')
-                  .map((option) => (
-                    <SelectItem key={option.label} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
-            {guideTypeOptions.map((option) => {
-              const active = guideTypes.includes(option.value)
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 rounded-2xl bg-card p-4 shadow-lg border border-border/50 lg:flex-row lg:items-center lg:p-5">
+        <div className="flex-1">
+          <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 -mx-1 px-1 scrollbar-hide">
+            {resourceTabs.map((tab) => {
+              const isActive = resourceType === tab.value
+              const Icon = tab.icon
               return (
-                <Button
-                  key={option.value}
+                <button
+                  key={tab.label}
                   type="button"
-                  size="sm"
-                  variant={active ? 'secondary' : 'outline'}
-                  className="min-h-11 rounded-full px-4 text-xs font-semibold"
-                  aria-pressed={active}
-                  onClick={() => toggleGuideType(option.value)}
+                  onClick={() => onResourceTypeChange(tab.value)}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap',
+                    'transition-all duration-200 flex-shrink-0',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]'
+                      : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
                 >
-                  {option.label}
-                </Button>
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
               )
             })}
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative min-w-60">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 lg:w-72">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={draftSearch}
-              onChange={(event) => setDraftSearch(event.target.value)}
+              onChange={(e) => setDraftSearch(e.target.value)}
               placeholder="Search guides..."
               aria-label="Search guides"
-              className="min-h-11 pl-9"
+              className="h-11 pl-10 pr-10 rounded-xl border-2 border-border bg-background focus:border-primary"
             />
+            {draftSearch && (
+              <button
+                type="button"
+                onClick={() => setDraftSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
-          {hasFilters && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  'h-11 gap-2 rounded-xl border-2 bg-transparent whitespace-nowrap',
+                  ageGroup ? 'border-primary bg-primary/5' : ''
+                )}
+              >
+                <span className="hidden sm:inline">
+                  {ageGroupOptions.find((o) => o.value === ageGroup || (o.value === '' && !ageGroup))?.label || 'Age'}
+                </span>
+                <span className="sm:hidden">
+                  {ageGroupOptions.find((o) => o.value === ageGroup || (o.value === '' && !ageGroup))?.shortLabel || 'Age'}
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-2 rounded-xl" align="end">
+              <div className="space-y-1">
+                {ageGroupOptions.map((option) => (
+                  <button
+                    key={option.label}
+                    type="button"
+                    onClick={() => onAgeGroupChange(option.value)}
+                    className={cn(
+                      'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      ageGroup === option.value || (!ageGroup && option.value === '')
+                        ? 'bg-primary text-primary-foreground'
+                        : 'hover:bg-muted'
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Button
+            type="button"
+            variant={showAdvanced ? 'default' : 'outline'}
+            className={cn(
+              'h-11 gap-2 rounded-xl border-2 bg-transparent',
+              showAdvanced ? 'bg-primary border-primary' : ''
+            )}
+            onClick={() => setShowAdvanced(!showAdvanced)}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="hidden sm:inline">More</span>
+            {activeFilterCount > 0 && (
+              <span
+                className={cn(
+                  'flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold',
+                  showAdvanced ? 'bg-white text-primary' : 'bg-primary text-white'
+                )}
+              >
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+
+          {activeFilterCount > 0 && (
             <Button
               type="button"
               variant="ghost"
-              className="min-h-11 gap-2 text-muted-foreground hover:text-foreground"
+              className="h-11 gap-2 text-muted-foreground hover:text-destructive rounded-xl"
               onClick={onClearFilters}
-              aria-label="Clear all filters"
             >
               <X className="h-4 w-4" />
-              Clear All
+              <span className="hidden sm:inline">Clear</span>
             </Button>
           )}
         </div>
       </div>
 
-      <div className="sr-only" aria-live="polite">
-        {announcement}
+      <div
+        className={cn(
+          'overflow-hidden transition-all duration-300 ease-in-out',
+          showAdvanced ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        )}
+      >
+        <div className="rounded-2xl bg-card p-5 shadow-lg border border-border/50">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="h-4 w-4 text-primary" />
+            <h3 className="font-bold text-foreground">Filter by Topic</h3>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {guideTypeOptions.map((option) => {
+              const isActive = guideTypes.includes(option.value)
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => toggleGuideType(option.value)}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold',
+                    'transition-all duration-200',
+                    isActive
+                      ? `${option.color} text-white shadow-md`
+                      : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  {option.label}
+                  {isActive && <X className="h-3.5 w-3.5" />}
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
 
-      {guideTypes.length > 0 && (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {guideTypes.map((type) => (
+      {(guideTypes.length > 0 || ageGroup) && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">Active:</span>
+
+          {ageGroup && (
             <Badge
-              key={type}
-              className="gap-2 rounded-full bg-primary/10 text-primary"
+              className="gap-2 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 cursor-pointer hover:bg-primary/20"
+              onClick={() => onAgeGroupChange('')}
             >
-              {guideTypeOptions.find((option) => option.value === type)?.label ?? type}
-              <button
-                type="button"
-                aria-label={`Remove ${type} filter`}
-                className="rounded-full p-0.5 hover:bg-primary/20"
+              {ageGroupOptions.find((o) => o.value === ageGroup)?.label}
+              <X className="h-3 w-3" />
+            </Badge>
+          )}
+
+          {guideTypes.map((type) => {
+            const option = guideTypeOptions.find((o) => o.value === type)
+            return (
+              <Badge
+                key={type}
+                className={cn(
+                  'gap-2 rounded-full px-3 py-1.5 cursor-pointer border-0 text-white',
+                  option?.color || 'bg-primary'
+                )}
                 onClick={() => toggleGuideType(type)}
               >
+                {option?.label ?? type}
                 <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
+              </Badge>
+            )
+          })}
         </div>
       )}
     </div>

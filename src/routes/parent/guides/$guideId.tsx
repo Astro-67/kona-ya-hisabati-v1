@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   BookOpen,
@@ -9,27 +9,27 @@ import {
   Home,
   Sparkles,
   Video,
-} from 'lucide-react';
-import type { ParentGuide } from '@/types';
-import { apiClient } from '@/lib/api';
-import { toast } from '@/components/ui/toaster';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { EmptyState } from '@/components/ui/empty-state';
-import { ErrorMessage } from '@/components/ui/error-message';
-import { GuideCard } from '@/components/parent/guide-card';
-import { GuideCardSkeleton } from '@/components/parent/guide-card-skeleton';
+} from 'lucide-react'
+import { apiClient } from '@/lib/api'
+import { toast } from '@/components/ui/toaster'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorMessage } from '@/components/ui/error-message'
+import { GuideCard, GuideCardGrid } from '@/components/parent/guide-card'
+import { GuideCardSkeletonGrid } from '@/components/parent/guide-card-skeleton'
+import type { ParentGuide } from '@/types'
 
 export const Route = createFileRoute('/parent/guides/$guideId')({
   component: ParentGuideDetail,
-});
+})
 
 const resourceTypeConfig = {
   text_guide: { label: 'Guide', icon: BookOpen },
   video_tutorial: { label: 'Video', icon: Video },
   offline_activity: { label: 'Activity', icon: Home },
-};
+}
 
 const guideTypeLabels: Record<ParentGuide['guide_type'], string> = {
   learning_tips: 'Learning Tips',
@@ -38,14 +38,14 @@ const guideTypeLabels: Record<ParentGuide['guide_type'], string> = {
   motivation: 'Motivation',
   development: 'Development',
   homework_help: 'Homework Help',
-};
+}
 
 const ageGroupLabels: Record<ParentGuide['age_group'], string> = {
   pre_primary: 'Pre-Primary',
   standard_1: 'Standard 1',
   standard_2: 'Standard 2',
   all: 'All Ages',
-};
+}
 
 const escapeHtml = (value: string) =>
   value
@@ -53,28 +53,45 @@ const escapeHtml = (value: string) =>
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    .replaceAll("'", '&#39;')
 
 const renderMarkdown = (content: string) => {
-  const sanitized = escapeHtml(content);
+  const sanitized = escapeHtml(content)
   const withHeadings = sanitized
     .replace(/^###\s(.+)$/gm, '<h3>$1</h3>')
     .replace(/^##\s(.+)$/gm, '<h2>$1</h2>')
-    .replace(/^#\s(.+)$/gm, '<h1>$1</h1>');
-  const withBold = withHeadings.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  const withItalic = withBold.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  const withCode = withItalic.replace(/`([^`]+)`/g, '<code>$1</code>');
-  const withListItems = withCode.replace(/^(?:-|\*)\s+(.+)$/gm, '<li>$1</li>');
-  const withLists = withListItems.replace(/(<li>[\s\S]*<\/li>)/g, '<ul>$1</ul>');
-  return withLists.replace(/\n/g, '<br />');
-};
+    .replace(/^#\s(.+)$/gm, '<h1>$1</h1>')
+  const withBold = withHeadings.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  const withItalic = withBold.replace(/\*(.+?)\*/g, '<em>$1</em>')
+  const withCode = withItalic.replace(/`([^`]+)`/g, '<code>$1</code>')
+  const withListItems = withCode.replace(/^(?:-|\*)\s+(.+)$/gm, '<li>$1</li>')
+  const withLists = withListItems.replace(/(<li>[\s\S]*<\/li>)/g, '<ul>$1</ul>')
+  return withLists.replace(/\n/g, '<br />')
+}
 
-const isVideoFile = (url: string) => /\.(mp4|webm|ogg)(\?|$)/i.test(url);
+const isVideoFile = (url: string) => /\.(mp4|webm|ogg)(\?|$)/i.test(url)
+
+const getYouTubeEmbedUrl = (url: string) => {
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname.includes('youtu.be')) {
+      const id = parsed.pathname.replace('/', '')
+      return id ? `https://www.youtube.com/embed/${id}` : null
+    }
+    if (parsed.hostname.includes('youtube.com')) {
+      const id = parsed.searchParams.get('v')
+      return id ? `https://www.youtube.com/embed/${id}` : null
+    }
+    return null
+  } catch {
+    return null
+  }
+}
 
 function ParentGuideDetail() {
-  const navigate = useNavigate();
-  const { guideId } = Route.useParams();
-  const [imageError, setImageError] = useState(false);
+  const navigate = useNavigate()
+  const { guideId } = Route.useParams()
+  const [imageError, setImageError] = useState(false)
 
   const {
     data: guide,
@@ -86,49 +103,49 @@ function ParentGuideDetail() {
     queryKey: ['parent-guide', guideId],
     enabled: Boolean(guideId),
     queryFn: async () => {
-      const res = await apiClient.get(`/parent/guides/${guideId}/`);
-      return res.data as ParentGuide;
+      const res = await apiClient.get(`/parent/guides/${guideId}/`)
+      return res.data as ParentGuide
     },
-  });
+  })
 
   const { data: relatedGuides, isLoading: relatedLoading } = useQuery({
     queryKey: ['parent-guide-related', guide?.category],
     enabled: Boolean(guide?.category),
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (guide?.category) params.append('category', String(guide.category));
-      params.append('page_size', '4');
-      const res = await apiClient.get(`/parent/guides/?${params.toString()}`);
-      const data = res.data;
-      if (Array.isArray(data)) return data;
-      return Array.isArray(data?.results) ? data.results : [];
+      const params = new URLSearchParams()
+      if (guide?.category) params.append('category', String(guide.category))
+      params.append('page_size', '4')
+      const res = await apiClient.get(`/parent/guides/?${params.toString()}`)
+      const data = res.data
+      if (Array.isArray(data)) return data
+      return Array.isArray(data?.results) ? data.results : []
     },
-  });
+  })
 
   useEffect(() => {
     if (isError) {
       toast.error(
-        (error as { message?: string }).message ||
+        (error as { message?: string })?.message ||
           'Failed to load the guide. Please try again.'
-      );
+      )
     }
-  }, [isError, error]);
+  }, [isError, error])
 
-  const resource = guide ? resourceTypeConfig[guide.resource_type] : null;
-  const ResourceIcon = resource?.icon ?? BookOpen;
+  const resource = guide ? resourceTypeConfig[guide.resource_type] : null
+  const ResourceIcon = resource?.icon ?? BookOpen
 
   const materials = useMemo(() => {
-    if (!guide?.materials_needed) return [];
+    if (!guide?.materials_needed) return []
     return guide.materials_needed
-      .split(/\r?\n|,/) 
+      .split(/\r?\n|,/)
       .map((item) => item.trim())
-      .filter(Boolean);
-  }, [guide?.materials_needed]);
+      .filter(Boolean)
+  }, [guide?.materials_needed])
 
   const contentMarkup = useMemo(() => {
-    if (!guide?.content) return '';
-    return renderMarkdown(guide.content);
-  }, [guide?.content]);
+    if (!guide?.content) return ''
+    return renderMarkdown(guide.content)
+  }, [guide?.content])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -155,7 +172,7 @@ function ParentGuideDetail() {
       ) : (
         <div className="space-y-8">
           <Card className="overflow-hidden rounded-2xl border border-border p-0 gap-0">
-            <div className="relative w-full aspect-video max-h-80 sm:max-h-90">
+            <div className="relative w-full aspect-video max-h-[320px] sm:max-h-[360px]">
               {guide.video_url ? (
                 isVideoFile(guide.video_url) ? (
                   <div className="flex h-full w-full items-center justify-center bg-black/5">
@@ -170,7 +187,7 @@ function ParentGuideDetail() {
                 ) : (
                   <div className="aspect-video w-full">
                     <iframe
-                      src={guide.video_url}
+                      src={getYouTubeEmbedUrl(guide.video_url) ?? guide.video_url}
                       title={guide.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
@@ -192,7 +209,7 @@ function ParentGuideDetail() {
               )}
 
               {guide.is_featured && (
-                <Badge className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-secondary text-secondary-foreground shadow-md">
+                <Badge className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-kids-yellow text-secondary-foreground shadow-md border-0">
                   <Sparkles className="h-4 w-4" />
                   Featured
                 </Badge>
@@ -212,7 +229,7 @@ function ParentGuideDetail() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                {guide.category_detail.name ? (
+                {guide.category_detail?.name ? (
                   <Badge
                     className="border"
                     style={{
@@ -247,8 +264,6 @@ function ParentGuideDetail() {
             </div>
           </Card>
 
-          {guide.video_url ? null : null}
-
           <Card className="rounded-2xl border border-border p-6">
             <h2 className="mb-3 text-xl font-bold text-foreground">Guide Details</h2>
             {guide.content ? (
@@ -275,13 +290,9 @@ function ParentGuideDetail() {
           <section className="space-y-4">
             <h2 className="text-xl font-bold text-foreground">Related Guides</h2>
             {relatedLoading ? (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <GuideCardSkeleton key={index} />
-                ))}
-              </div>
+              <GuideCardSkeletonGrid count={3} columns={3} />
             ) : relatedGuides && relatedGuides.length > 0 ? (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <GuideCardGrid columns={3}>
                 {relatedGuides
                   .filter((item: ParentGuide) => item.id !== guide.id)
                   .slice(0, 4)
@@ -289,6 +300,7 @@ function ParentGuideDetail() {
                     <GuideCard
                       key={item.id}
                       guide={item}
+                      variant="compact"
                       onClick={() =>
                         navigate({
                           to: '/parent/guides/$guideId',
@@ -297,7 +309,7 @@ function ParentGuideDetail() {
                       }
                     />
                   ))}
-              </div>
+              </GuideCardGrid>
             ) : (
               <EmptyState
                 title="No related guides"
@@ -309,5 +321,5 @@ function ParentGuideDetail() {
         </div>
       )}
     </div>
-  );
+  )
 }

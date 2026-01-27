@@ -1,42 +1,45 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
-import type { PaginatedResponse, ParentGuide } from '@/types';
-import { apiClient } from '@/lib/api';
-import { toast } from '@/components/ui/toaster';
-import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/ui/empty-state';
-import { ErrorMessage } from '@/components/ui/error-message';
-import { GuideCard } from '@/components/parent/guide-card';
-import { GuideCardSkeleton } from '@/components/parent/guide-card-skeleton';
-import { GuidesFilters } from '@/components/parent/guides-filters';
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react'
+import type { PaginatedResponse, ParentGuide } from '@/types'
+import { apiClient } from '@/lib/api'
+import { toast } from '@/components/ui/toaster'
+import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorMessage } from '@/components/ui/error-message'
+import { GuideCard, GuideCardGrid } from '@/components/parent/guide-card'
+import {
+  FeaturedSkeletonCarousel,
+  GuideCardSkeletonGrid,
+} from '@/components/parent/guide-card-skeleton'
+import { GuidesFilters } from '@/components/parent/guides-filters'
 
 export const Route = createFileRoute('/parent/guides/')({
   component: ParentGuidesList,
-});
+})
 
 function ParentGuidesList() {
-  const navigate = useNavigate();
-  const [resourceType, setResourceType] = useState('');
-  const [ageGroup, setAgeGroup] = useState('');
-  const [guideTypes, setGuideTypes] = useState<Array<string>>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate()
+  const [resourceType, setResourceType] = useState('')
+  const [ageGroup, setAgeGroup] = useState('')
+  const [guideTypes, setGuideTypes] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [resourceType, ageGroup, guideTypes.join('|'), searchQuery]);
+    setCurrentPage(1)
+  }, [resourceType, ageGroup, guideTypes.join('|'), searchQuery])
 
   const params = useMemo(() => {
-    const searchParams = new URLSearchParams();
-    if (resourceType) searchParams.append('resource_type', resourceType);
-    if (ageGroup) searchParams.append('age_group', ageGroup);
-    guideTypes.forEach((type) => searchParams.append('guide_type', type));
-    if (searchQuery) searchParams.append('search', searchQuery);
-    searchParams.append('page', String(currentPage));
-    return searchParams.toString();
-  }, [resourceType, ageGroup, guideTypes, searchQuery, currentPage]);
+    const searchParams = new URLSearchParams()
+    if (resourceType) searchParams.append('resource_type', resourceType)
+    if (ageGroup) searchParams.append('age_group', ageGroup)
+    guideTypes.forEach((type) => searchParams.append('guide_type', type))
+    if (searchQuery) searchParams.append('search', searchQuery)
+    searchParams.append('page', String(currentPage))
+    return searchParams.toString()
+  }, [resourceType, ageGroup, guideTypes, searchQuery, currentPage])
 
   const {
     data: guidesResponse,
@@ -48,20 +51,20 @@ function ParentGuidesList() {
   } = useQuery({
     queryKey: ['parent-guides', resourceType, ageGroup, guideTypes, searchQuery, currentPage],
     queryFn: async () => {
-      const res = await apiClient.get(`/parent/guides/?${params}`);
-      const data = res.data;
+      const res = await apiClient.get(`/parent/guides/?${params}`)
+      const data = res.data
       if (Array.isArray(data)) {
         return {
           count: data.length,
           next: null,
           previous: null,
           results: data,
-        } as PaginatedResponse<ParentGuide>;
+        } as PaginatedResponse<ParentGuide>
       }
-      return data as PaginatedResponse<ParentGuide>;
+      return data as PaginatedResponse<ParentGuide>
     },
     placeholderData: keepPreviousData,
-  });
+  })
 
   const {
     data: featuredGuides,
@@ -71,51 +74,51 @@ function ParentGuidesList() {
   } = useQuery({
     queryKey: ['featured-guides'],
     queryFn: async () => {
-      const res = await apiClient.get('/parent/guides/featured/');
-      return Array.isArray(res.data) ? res.data : [];
+      const res = await apiClient.get('/parent/guides/featured/')
+      return Array.isArray(res.data) ? res.data : []
     },
-  });
+  })
 
   useEffect(() => {
     if (isError) {
       toast.error(
-        (error as { message?: string }).message ||
+        (error as { message?: string })?.message ||
           'Failed to load guides. Please try again.'
-      );
+      )
     }
-  }, [isError, error]);
+  }, [isError, error])
 
   useEffect(() => {
     if (featuredError) {
       toast.error(
-        (featuredErrorData as { message?: string }).message ||
+        (featuredErrorData as { message?: string })?.message ||
           'Failed to load featured guides.'
-      );
+      )
     }
-  }, [featuredError, featuredErrorData]);
+  }, [featuredError, featuredErrorData])
 
   const guides = Array.isArray(guidesResponse?.results)
-    ? guidesResponse.results
-    : [];
-  const totalCount = guidesResponse?.count ?? guides.length;
-  const pageSize = guides.length || 1;
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const showPagination = totalPages > 1;
+    ? guidesResponse?.results
+    : []
+  const totalCount = guidesResponse?.count ?? guides.length
+  const pageSize = guides.length || 1
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  const showPagination = totalPages > 1
 
   const handleNavigateGuide = (guideId: number) => {
     navigate({
       to: '/parent/guides/$guideId',
       params: { guideId: String(guideId) },
-    });
-  };
+    })
+  }
 
   const handleClearFilters = () => {
-    setResourceType('');
-    setAgeGroup('');
-    setGuideTypes([]);
-    setSearchQuery('');
-    setCurrentPage(1);
-  };
+    setResourceType('')
+    setAgeGroup('')
+    setGuideTypes([])
+    setSearchQuery('')
+    setCurrentPage(1)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -146,22 +149,17 @@ function ParentGuidesList() {
         </div>
 
         {featuredLoading ? (
-          <div className="flex gap-4 overflow-x-auto pb-2">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="min-w-70 max-w-[320px]">
-                <GuideCardSkeleton />
-              </div>
-            ))}
-          </div>
+          <FeaturedSkeletonCarousel count={4} />
         ) : featuredGuides && featuredGuides.length > 0 ? (
           <div
-            className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
+            className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
             aria-label="Featured guides"
           >
             {featuredGuides.map((guide: ParentGuide) => (
-              <div key={guide.id} className="min-w-70 max-w-[320px] snap-start">
+              <div key={guide.id} className="min-w-[320px] max-w-[360px] snap-start">
                 <GuideCard
                   guide={guide}
+                  variant="featured"
                   onClick={() => handleNavigateGuide(guide.id)}
                 />
               </div>
@@ -194,11 +192,7 @@ function ParentGuidesList() {
         ) : null}
 
         {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <GuideCardSkeleton key={index} />
-            ))}
-          </div>
+          <GuideCardSkeletonGrid count={6} columns={3} />
         ) : guides.length === 0 ? (
           <EmptyState
             title="No guides match your filters"
@@ -207,7 +201,7 @@ function ParentGuidesList() {
             onAction={handleClearFilters}
           />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <GuideCardGrid columns={3}>
             {guides.map((guide) => (
               <GuideCard
                 key={guide.id}
@@ -215,7 +209,7 @@ function ParentGuidesList() {
                 onClick={() => handleNavigateGuide(guide.id)}
               />
             ))}
-          </div>
+          </GuideCardGrid>
         )}
       </section>
 
@@ -251,5 +245,5 @@ function ParentGuidesList() {
         </div>
       ) : null}
     </div>
-  );
+  )
 }
