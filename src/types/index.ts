@@ -114,3 +114,58 @@ export interface ApiError {
   message: string;
   errors?: Record<string, Array<string>>;
 }
+
+export interface ParentGuideCategoryDetail {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string;
+  color: string;
+}
+
+export type ParentGuideType =
+  | 'learning_tips'
+  | 'activity_ideas'
+  | 'progress_help'
+  | 'motivation'
+  | 'development'
+  | 'homework_help';
+
+export type ParentGuideResourceType =
+  | 'text_guide'
+  | 'video_tutorial'
+  | 'offline_activity';
+
+export type ParentGuideAgeGroup =
+  | 'pre_primary'
+  | 'standard_1'
+  | 'standard_2'
+  | 'all';
+
+export interface ParentGuide {
+  id: number;
+  title: string;
+  description: string;
+  content: string;
+  category: number;
+  category_detail: ParentGuideCategoryDetail;
+  guide_type: ParentGuideType;
+  resource_type: ParentGuideResourceType;
+  age_group: ParentGuideAgeGroup;
+  thumbnail: string;
+  video_url: string;
+  icon: string;
+  materials_needed: string;
+  duration_minutes: number;
+  is_featured: boolean;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Array<T>;
+}
