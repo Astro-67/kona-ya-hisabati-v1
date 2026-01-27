@@ -69,6 +69,8 @@ const renderMarkdown = (content: string) => {
   return withLists.replace(/\n/g, '<br />');
 };
 
+const isVideoFile = (url: string) => /\.(mp4|webm|ogg)(\?|$)/i.test(url);
+
 function ParentGuideDetail() {
   const navigate = useNavigate();
   const { guideId } = Route.useParams();
@@ -153,8 +155,30 @@ function ParentGuideDetail() {
       ) : (
         <div className="space-y-8">
           <Card className="overflow-hidden rounded-2xl border border-border p-0 gap-0">
-            <div className="relative h-64 w-full">
-              {guide.thumbnail && !imageError ? (
+            <div className="relative w-full aspect-video max-h-80 sm:max-h-90">
+              {guide.video_url ? (
+                isVideoFile(guide.video_url) ? (
+                  <div className="flex h-full w-full items-center justify-center bg-black/5">
+                    <video
+                      className="h-full w-full object-contain"
+                      controls
+                      preload="metadata"
+                    >
+                      <source src={guide.video_url} />
+                    </video>
+                  </div>
+                ) : (
+                  <div className="aspect-video w-full">
+                    <iframe
+                      src={guide.video_url}
+                      title={guide.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="h-full w-full"
+                    />
+                  </div>
+                )
+              ) : guide.thumbnail && !imageError ? (
                 <img
                   src={guide.thumbnail}
                   alt={guide.title}
@@ -223,19 +247,7 @@ function ParentGuideDetail() {
             </div>
           </Card>
 
-          {guide.video_url ? (
-            <Card className="overflow-hidden rounded-2xl border border-border p-0 gap-0">
-              <div className="aspect-video w-full">
-                <iframe
-                  src={guide.video_url}
-                  title={guide.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="h-full w-full"
-                />
-              </div>
-            </Card>
-          ) : null}
+          {guide.video_url ? null : null}
 
           <Card className="rounded-2xl border border-border p-6">
             <h2 className="mb-3 text-xl font-bold text-foreground">Guide Details</h2>

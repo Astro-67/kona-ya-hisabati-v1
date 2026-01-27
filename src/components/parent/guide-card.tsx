@@ -38,9 +38,17 @@ export interface GuideCardProps {
 
 export function GuideCard({ guide, onClick }: GuideCardProps) {
   const [imageError, setImageError] = useState(false)
+  const [videoError, setVideoError] = useState(false)
   const resource = resourceTypeConfig[guide.resource_type]
   const ResourceIcon = resource.icon
-  const showImage = Boolean(guide.thumbnail) && !imageError
+  const thumbnail = guide.thumbnail.trim()
+  const showImage = Boolean(thumbnail) && !imageError
+  const isVideoFile = Boolean(guide.video_url) && /\.(mp4|webm|ogg)(\?|$)/i.test(guide.video_url)
+  const showVideoPreview =
+    !showImage &&
+    guide.resource_type === 'video_tutorial' &&
+    isVideoFile &&
+    !videoError
 
   return (
     <Card
@@ -59,11 +67,24 @@ export function GuideCard({ guide, onClick }: GuideCardProps) {
       <div className="relative h-40 w-full overflow-hidden">
         {showImage ? (
           <img
-            src={guide.thumbnail}
+            src={thumbnail}
             alt={guide.title}
-            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+            className="pointer-events-none h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
             onError={() => setImageError(true)}
+            loading="lazy"
           />
+        ) : showVideoPreview ? (
+          <div className="flex h-full w-full items-center justify-center bg-black/5">
+            <video
+              className="pointer-events-none h-full w-full object-contain"
+              preload="metadata"
+              muted
+              playsInline
+              onError={() => setVideoError(true)}
+            >
+              <source src={guide.video_url} />
+            </video>
+          </div>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/15 via-secondary/20 to-accent/20">
             <ResourceIcon className="h-10 w-10 text-primary/70" />
