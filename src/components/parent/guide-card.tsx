@@ -112,7 +112,7 @@ export function GuideCard({ guide, onClick }: GuideCardProps) {
 
           <span className="inline-flex items-center gap-1">
             <Eye className="h-3.5 w-3.5" />
-            {guide.view_count ?? 0}
+            {guide.view_count}
           </span>
         </div>
       </div>

@@ -95,7 +95,7 @@ function ParentGuidesList() {
   }, [featuredError, featuredErrorData]);
 
   const guides = Array.isArray(guidesResponse?.results)
-    ? guidesResponse?.results
+    ? guidesResponse.results
     : [];
   const totalCount = guidesResponse?.count ?? guides.length;
   const pageSize = guides.length || 1;

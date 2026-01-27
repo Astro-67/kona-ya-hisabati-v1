@@ -188,7 +188,7 @@ function ParentGuideDetail() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                {guide.category_detail?.name ? (
+                {guide.category_detail.name ? (
                   <Badge
                     className="border"
                     style={{
@@ -217,7 +217,7 @@ function ParentGuideDetail() {
                 ) : null}
                 <span className="inline-flex items-center gap-1">
                   <Eye className="h-4 w-4" />
-                  {guide.view_count ?? 0} views
+                  {guide.view_count} views
                 </span>
               </div>
             </div>
