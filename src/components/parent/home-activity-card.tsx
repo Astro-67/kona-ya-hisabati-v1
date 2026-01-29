@@ -60,7 +60,13 @@ export function HomeActivityCard({
   const categoryColor = categoryDetail.color
   const categoryName = categoryDetail.name
 
-  const materialsCount = (safeActivity.materials_needed ?? []).length
+  const materialsCount = Array.isArray(safeActivity.materials_needed)
+    ? safeActivity.materials_needed.length
+    : typeof safeActivity.materials_needed === 'string'
+      ? safeActivity.materials_needed
+          .split(/\r?\n|,/)
+          .filter((item: string) => item.trim()).length
+      : 0
   const durationLabel = activity.duration_minutes
     ? `${activity.duration_minutes} min`
     : 'Flexible'

@@ -180,10 +180,10 @@ export interface HomeActivity {
   category_detail?: CategoryDetail | null;
   duration_minutes: number;
   difficulty: 'easy' | 'medium' | 'hard';
-  materials_needed?: Array<string>;
+  materials_needed?: Array<string> | string;
   age_group: 'pre_primary' | 'standard_1' | 'standard_2' | 'all';
-  learning_objectives?: Array<string>;
-  tips?: Array<string>;
+  learning_objectives?: Array<string> | string;
+  tips?: Array<string> | string;
   thumbnail?: string | null;
   video_url?: string | null;
   icon?: string | null;

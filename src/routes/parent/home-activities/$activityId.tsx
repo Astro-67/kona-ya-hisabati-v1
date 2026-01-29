@@ -194,9 +194,21 @@ function HomeActivityDetail() {
       .filter(Boolean)
   }, [activity?.instructions])
 
-  const materials = activity?.materials_needed ?? []
-  const objectives = activity?.learning_objectives ?? []
-  const tips = activity?.tips ?? []
+  const materials = useMemo(() => {
+    const raw = activity?.materials_needed
+    if (Array.isArray(raw)) return raw.filter((item) => Boolean(item))
+    if (typeof raw === 'string') {
+      return raw
+        .split(/\r?\n|,/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    }
+    return []
+  }, [activity?.materials_needed])
+  const objectives = Array.isArray(activity?.learning_objectives)
+    ? activity.learning_objectives
+    : []
+  const tips = Array.isArray(activity?.tips) ? activity.tips : []
   const durationLabel = activity?.duration_minutes
     ? `${activity.duration_minutes} min`
     : 'Flexible'
