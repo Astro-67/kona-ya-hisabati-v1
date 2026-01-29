@@ -18,13 +18,13 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherIndexRouteImport } from './routes/teacher/index'
 import { Route as ParentIndexRouteImport } from './routes/parent/index'
-import { Route as ParentHomeActivitiesRouteImport } from './routes/parent/home-activities'
 import { Route as TeacherStudentsIndexRouteImport } from './routes/teacher/students/index'
 import { Route as TeacherResourcesIndexRouteImport } from './routes/teacher/resources/index'
 import { Route as TeacherLessonPlansIndexRouteImport } from './routes/teacher/lesson-plans/index'
 import { Route as TeacherClassesIndexRouteImport } from './routes/teacher/classes/index'
 import { Route as TeacherAssignmentsIndexRouteImport } from './routes/teacher/assignments/index'
 import { Route as TeacherActivitiesIndexRouteImport } from './routes/teacher/activities/index'
+import { Route as ParentHomeActivitiesIndexRouteImport } from './routes/parent/home-activities/index'
 import { Route as ParentGuidesIndexRouteImport } from './routes/parent/guides/index'
 import { Route as TeacherStudentsCreateRouteImport } from './routes/teacher/students/create'
 import { Route as TeacherStudentsStudentIdRouteImport } from './routes/teacher/students/$studentId'
@@ -33,6 +33,7 @@ import { Route as TeacherLessonPlansLessonIdRouteImport } from './routes/teacher
 import { Route as TeacherClassesCreateRouteImport } from './routes/teacher/classes/create'
 import { Route as TeacherAssignmentsCreateRouteImport } from './routes/teacher/assignments/create'
 import { Route as TeacherActivitiesActivityIdRouteImport } from './routes/teacher/activities/$activityId'
+import { Route as ParentHomeActivitiesActivityIdRouteImport } from './routes/parent/home-activities/$activityId'
 import { Route as ParentGuidesGuideIdRouteImport } from './routes/parent/guides/$guideId'
 import { Route as AuthTeacherRegisterRouteImport } from './routes/_auth/teacher/register'
 import { Route as AuthTeacherLoginRouteImport } from './routes/_auth/teacher/login'
@@ -89,11 +90,6 @@ const ParentIndexRoute = ParentIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ParentRouteRoute,
 } as any)
-const ParentHomeActivitiesRoute = ParentHomeActivitiesRouteImport.update({
-  id: '/home-activities',
-  path: '/home-activities',
-  getParentRoute: () => ParentRouteRoute,
-} as any)
 const TeacherStudentsIndexRoute = TeacherStudentsIndexRouteImport.update({
   id: '/students/',
   path: '/students/',
@@ -124,6 +120,12 @@ const TeacherActivitiesIndexRoute = TeacherActivitiesIndexRouteImport.update({
   path: '/activities/',
   getParentRoute: () => TeacherRouteRoute,
 } as any)
+const ParentHomeActivitiesIndexRoute =
+  ParentHomeActivitiesIndexRouteImport.update({
+    id: '/home-activities/',
+    path: '/home-activities/',
+    getParentRoute: () => ParentRouteRoute,
+  } as any)
 const ParentGuidesIndexRoute = ParentGuidesIndexRouteImport.update({
   id: '/guides/',
   path: '/guides/',
@@ -168,6 +170,12 @@ const TeacherActivitiesActivityIdRoute =
     id: '/activities/$activityId',
     path: '/activities/$activityId',
     getParentRoute: () => TeacherRouteRoute,
+  } as any)
+const ParentHomeActivitiesActivityIdRoute =
+  ParentHomeActivitiesActivityIdRouteImport.update({
+    id: '/home-activities/$activityId',
+    path: '/home-activities/$activityId',
+    getParentRoute: () => ParentRouteRoute,
   } as any)
 const ParentGuidesGuideIdRoute = ParentGuidesGuideIdRouteImport.update({
   id: '/guides/$guideId',
@@ -238,7 +246,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
-  '/parent/home-activities': typeof ParentHomeActivitiesRoute
   '/parent/': typeof ParentIndexRoute
   '/teacher/': typeof TeacherIndexRoute
   '/parent/login': typeof AuthParentLoginRoute
@@ -246,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/teacher/login': typeof AuthTeacherLoginRoute
   '/teacher/register': typeof AuthTeacherRegisterRoute
   '/parent/guides/$guideId': typeof ParentGuidesGuideIdRoute
+  '/parent/home-activities/$activityId': typeof ParentHomeActivitiesActivityIdRoute
   '/teacher/activities/$activityId': typeof TeacherActivitiesActivityIdRoute
   '/teacher/assignments/create': typeof TeacherAssignmentsCreateRoute
   '/teacher/classes/create': typeof TeacherClassesCreateRoute
@@ -254,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/students/create': typeof TeacherStudentsCreateRoute
   '/parent/guides/': typeof ParentGuidesIndexRoute
+  '/parent/home-activities/': typeof ParentHomeActivitiesIndexRoute
   '/teacher/activities/': typeof TeacherActivitiesIndexRoute
   '/teacher/assignments/': typeof TeacherAssignmentsIndexRoute
   '/teacher/classes/': typeof TeacherClassesIndexRoute
@@ -272,7 +281,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
-  '/parent/home-activities': typeof ParentHomeActivitiesRoute
   '/parent': typeof ParentIndexRoute
   '/teacher': typeof TeacherIndexRoute
   '/parent/login': typeof AuthParentLoginRoute
@@ -280,6 +288,7 @@ export interface FileRoutesByTo {
   '/teacher/login': typeof AuthTeacherLoginRoute
   '/teacher/register': typeof AuthTeacherRegisterRoute
   '/parent/guides/$guideId': typeof ParentGuidesGuideIdRoute
+  '/parent/home-activities/$activityId': typeof ParentHomeActivitiesActivityIdRoute
   '/teacher/activities/$activityId': typeof TeacherActivitiesActivityIdRoute
   '/teacher/assignments/create': typeof TeacherAssignmentsCreateRoute
   '/teacher/classes/create': typeof TeacherClassesCreateRoute
@@ -288,6 +297,7 @@ export interface FileRoutesByTo {
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/students/create': typeof TeacherStudentsCreateRoute
   '/parent/guides': typeof ParentGuidesIndexRoute
+  '/parent/home-activities': typeof ParentHomeActivitiesIndexRoute
   '/teacher/activities': typeof TeacherActivitiesIndexRoute
   '/teacher/assignments': typeof TeacherAssignmentsIndexRoute
   '/teacher/classes': typeof TeacherClassesIndexRoute
@@ -310,7 +320,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
-  '/parent/home-activities': typeof ParentHomeActivitiesRoute
   '/parent/': typeof ParentIndexRoute
   '/teacher/': typeof TeacherIndexRoute
   '/_auth/parent/login': typeof AuthParentLoginRoute
@@ -318,6 +327,7 @@ export interface FileRoutesById {
   '/_auth/teacher/login': typeof AuthTeacherLoginRoute
   '/_auth/teacher/register': typeof AuthTeacherRegisterRoute
   '/parent/guides/$guideId': typeof ParentGuidesGuideIdRoute
+  '/parent/home-activities/$activityId': typeof ParentHomeActivitiesActivityIdRoute
   '/teacher/activities/$activityId': typeof TeacherActivitiesActivityIdRoute
   '/teacher/assignments/create': typeof TeacherAssignmentsCreateRoute
   '/teacher/classes/create': typeof TeacherClassesCreateRoute
@@ -326,6 +336,7 @@ export interface FileRoutesById {
   '/teacher/students/$studentId': typeof TeacherStudentsStudentIdRoute
   '/teacher/students/create': typeof TeacherStudentsCreateRoute
   '/parent/guides/': typeof ParentGuidesIndexRoute
+  '/parent/home-activities/': typeof ParentHomeActivitiesIndexRoute
   '/teacher/activities/': typeof TeacherActivitiesIndexRoute
   '/teacher/assignments/': typeof TeacherAssignmentsIndexRoute
   '/teacher/classes/': typeof TeacherClassesIndexRoute
@@ -348,7 +359,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/privacy'
-    | '/parent/home-activities'
     | '/parent/'
     | '/teacher/'
     | '/parent/login'
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/teacher/login'
     | '/teacher/register'
     | '/parent/guides/$guideId'
+    | '/parent/home-activities/$activityId'
     | '/teacher/activities/$activityId'
     | '/teacher/assignments/create'
     | '/teacher/classes/create'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/teacher/students/$studentId'
     | '/teacher/students/create'
     | '/parent/guides/'
+    | '/parent/home-activities/'
     | '/teacher/activities/'
     | '/teacher/assignments/'
     | '/teacher/classes/'
@@ -382,7 +394,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/privacy'
-    | '/parent/home-activities'
     | '/parent'
     | '/teacher'
     | '/parent/login'
@@ -390,6 +401,7 @@ export interface FileRouteTypes {
     | '/teacher/login'
     | '/teacher/register'
     | '/parent/guides/$guideId'
+    | '/parent/home-activities/$activityId'
     | '/teacher/activities/$activityId'
     | '/teacher/assignments/create'
     | '/teacher/classes/create'
@@ -398,6 +410,7 @@ export interface FileRouteTypes {
     | '/teacher/students/$studentId'
     | '/teacher/students/create'
     | '/parent/guides'
+    | '/parent/home-activities'
     | '/teacher/activities'
     | '/teacher/assignments'
     | '/teacher/classes'
@@ -419,7 +432,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/privacy'
-    | '/parent/home-activities'
     | '/parent/'
     | '/teacher/'
     | '/_auth/parent/login'
@@ -427,6 +439,7 @@ export interface FileRouteTypes {
     | '/_auth/teacher/login'
     | '/_auth/teacher/register'
     | '/parent/guides/$guideId'
+    | '/parent/home-activities/$activityId'
     | '/teacher/activities/$activityId'
     | '/teacher/assignments/create'
     | '/teacher/classes/create'
@@ -435,6 +448,7 @@ export interface FileRouteTypes {
     | '/teacher/students/$studentId'
     | '/teacher/students/create'
     | '/parent/guides/'
+    | '/parent/home-activities/'
     | '/teacher/activities/'
     | '/teacher/assignments/'
     | '/teacher/classes/'
@@ -524,13 +538,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentIndexRouteImport
       parentRoute: typeof ParentRouteRoute
     }
-    '/parent/home-activities': {
-      id: '/parent/home-activities'
-      path: '/home-activities'
-      fullPath: '/parent/home-activities'
-      preLoaderRoute: typeof ParentHomeActivitiesRouteImport
-      parentRoute: typeof ParentRouteRoute
-    }
     '/teacher/students/': {
       id: '/teacher/students/'
       path: '/students'
@@ -572,6 +579,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/teacher/activities/'
       preLoaderRoute: typeof TeacherActivitiesIndexRouteImport
       parentRoute: typeof TeacherRouteRoute
+    }
+    '/parent/home-activities/': {
+      id: '/parent/home-activities/'
+      path: '/home-activities'
+      fullPath: '/parent/home-activities/'
+      preLoaderRoute: typeof ParentHomeActivitiesIndexRouteImport
+      parentRoute: typeof ParentRouteRoute
     }
     '/parent/guides/': {
       id: '/parent/guides/'
@@ -628,6 +642,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/teacher/activities/$activityId'
       preLoaderRoute: typeof TeacherActivitiesActivityIdRouteImport
       parentRoute: typeof TeacherRouteRoute
+    }
+    '/parent/home-activities/$activityId': {
+      id: '/parent/home-activities/$activityId'
+      path: '/home-activities/$activityId'
+      fullPath: '/parent/home-activities/$activityId'
+      preLoaderRoute: typeof ParentHomeActivitiesActivityIdRouteImport
+      parentRoute: typeof ParentRouteRoute
     }
     '/parent/guides/$guideId': {
       id: '/parent/guides/$guideId'
@@ -728,20 +749,22 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 )
 
 interface ParentRouteRouteChildren {
-  ParentHomeActivitiesRoute: typeof ParentHomeActivitiesRoute
   ParentIndexRoute: typeof ParentIndexRoute
   ParentGuidesGuideIdRoute: typeof ParentGuidesGuideIdRoute
+  ParentHomeActivitiesActivityIdRoute: typeof ParentHomeActivitiesActivityIdRoute
   ParentGuidesIndexRoute: typeof ParentGuidesIndexRoute
+  ParentHomeActivitiesIndexRoute: typeof ParentHomeActivitiesIndexRoute
   ParentChildChildIdCategoriesRoute: typeof ParentChildChildIdCategoriesRoute
   ParentChildChildIdActivityActivityIdRoute: typeof ParentChildChildIdActivityActivityIdRoute
   ParentChildChildIdCategoryCategorySlugRoute: typeof ParentChildChildIdCategoryCategorySlugRoute
 }
 
 const ParentRouteRouteChildren: ParentRouteRouteChildren = {
-  ParentHomeActivitiesRoute: ParentHomeActivitiesRoute,
   ParentIndexRoute: ParentIndexRoute,
   ParentGuidesGuideIdRoute: ParentGuidesGuideIdRoute,
+  ParentHomeActivitiesActivityIdRoute: ParentHomeActivitiesActivityIdRoute,
   ParentGuidesIndexRoute: ParentGuidesIndexRoute,
+  ParentHomeActivitiesIndexRoute: ParentHomeActivitiesIndexRoute,
   ParentChildChildIdCategoriesRoute: ParentChildChildIdCategoriesRoute,
   ParentChildChildIdActivityActivityIdRoute:
     ParentChildChildIdActivityActivityIdRoute,

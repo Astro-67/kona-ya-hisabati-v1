@@ -163,6 +163,36 @@ export interface ParentGuide {
   updated_at: string;
 }
 
+export interface CategoryDetail {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string;
+  color: string;
+}
+
+export interface HomeActivity {
+  id: number;
+  title: string;
+  description: string;
+  instructions: string;
+  category: number;
+  category_detail?: CategoryDetail | null;
+  duration_minutes: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  materials_needed?: Array<string>;
+  age_group: 'pre_primary' | 'standard_1' | 'standard_2' | 'all';
+  learning_objectives?: Array<string>;
+  tips?: Array<string>;
+  thumbnail?: string | null;
+  video_url?: string | null;
+  icon?: string | null;
+  is_featured: boolean;
+  completion_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface PaginatedResponse<T> {
   count: number;
   next: string | null;
